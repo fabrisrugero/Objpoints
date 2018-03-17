@@ -1,15 +1,15 @@
 #include "open.h"
 void Tools::open::outputIntroductions(){
 	option::clearConsoleScreen();
-	std::cout << "Only the following formats and numbers are accepted: " << std::endl;
-	std::cout << "----------------------------------------------------" << std::endl;
-	std::cout << "1.Any integer number between -99999 <> +99999 " << std::endl;
-	std::cout << "2.Any real number between -9999.0 <> +99999.0 " << std::endl;
-	std::cout << "3.Decimal places are limited to 6 places eg. 0.123456" << std::endl << std::endl;
+	std::cout << "Only the following file formats will be accepted:\n";
+	std::cout << "------------------------------------------------\n";
+	std::cout << "1.Joint Photographic Experts Group ( JPEG/JPG )\n";
+	std::cout << "2.Portable Network Graphics ( PNG )\n";
+	std::cout << "3.SQLite Database file ( db )\n\n";
 };
 void Tools::open::output(bool results){
 	if (!results)
-		std::cout << this->index << ") Celsius to Kelvin" << std::endl;
+		std::cout << this->index << ") open local image/database" << std::endl;
 	else{
 		option::clearConsoleScreen();
 	}
@@ -18,7 +18,7 @@ Tools::open::open(Menu Index) : option(){
 	this->index = static_cast<int>(Index)+1;
 }
 bool Tools::open::update(){
-	std::cout << "Enter Degrees Celsuis: ";
+	std::cout << "Enter FileName: ";
 	option::removeKeysPressed(); option::processKeysPressed();
 	return false;
 }
