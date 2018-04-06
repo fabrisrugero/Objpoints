@@ -12,12 +12,13 @@ namespace Tools{
 		option(int interations = 1);
 		virtual bool IsValidInput();
 		static void removeKeysPressed();
-		static void processKeysPressed();
 		static void clearConsoleScreen();
+		static const int alphanumeric = 63;
 		static bool keyPressed(int Menuindex);
 		virtual void outputIntroductions() = 0;
 		virtual void output(bool results = true) = 0;
 		static bool keyPressed(char upper, char lower);	
+		static void processKeysPressed(int digits = 11);
 	protected:
 		static bool outputErrorToSecreen(int option);
 		static const int maxinterations = 144;
@@ -38,6 +39,8 @@ namespace Tools{
 		static char* userInputs;
 		static char* validInputs;
 		static int validCharIndex;
+		static const char* lowercase;
+		static const char* uppercase;
 		static const int maxchars = 12;
 	};
 }

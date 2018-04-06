@@ -15,15 +15,18 @@ bool Tools::option::hasDecimal = false;
 char* Tools::option::userInputs = nullptr;
 char* Tools::option::validInputs = nullptr;
 char* Tools::option::validUserInputs = nullptr;
+const char* alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRETUVWZYZ";
 Tools::option::option(int interations){
 	this->interations = interations < this->maxinterations ?
 	interations : this->maxinterations;
 	this->results = new char[this->interations]();
 	if (option::validInputs != nullptr) return;
-	option::validInputs = new char[12];
+	option::validInputs = new char[alphanumeric + 1];
 	option::validInputs[this->interation] = '-';
 	for (this->interation = 1; this->interation < 11; this->interation++)
 		option::validInputs[this->interation] = '0' + this->interation - 1;
+	for (this->interation = this->interation; this->interation < 26; this->interation++)
+		option::validInputs[this->interation] = alphabet[this->interation - 11];
 	option::validInputs[this->interation] = '\0';
 }
 void Tools::option::removeKeysPressed(){
@@ -39,7 +42,7 @@ bool Tools::option::IsValidInput(){
 	else if (hasDecimal && validCharIndex >= 2) return true;
 	else return false;
 }
-void Tools::option::processKeysPressed(){
+void Tools::option::processKeysPressed(int digits){
 	validUserInputs = new char[maxchars + 1];
 	userInputs = new char[maxchars];
 	while (std::cin.get(_keyPressed)){
@@ -52,7 +55,7 @@ void Tools::option::processKeysPressed(){
 		userInputs[indexer] = '\0';
 	inputs = charIndex;
 	while (charIndex){
-		for (indexer = 0; indexer < 11; indexer++){
+		for (indexer = 0; indexer < digits; indexer++){
 			if (userInputs[inputs - charIndex] == validInputs[indexer]){
 				validUserInputs[validCharIndex++] = userInputs[inputs - charIndex];
 				 break;

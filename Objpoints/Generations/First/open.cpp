@@ -15,11 +15,12 @@ void Tools::open::output(bool results){
 	}
 }
 Tools::open::open(Menu Index) : option(){
-	this->index = static_cast<int>(Index)+1;
+	this->index = static_cast<int>(Index) + 1;
 }
 bool Tools::open::update(){
 	std::cout << "Enter FileName: ";
-	option::removeKeysPressed(); option::processKeysPressed();
+	option::removeKeysPressed(); 
+	option::processKeysPressed(option::alphanumeric);
 	return false;
 }
 bool Tools::open::IsValidInput(){
