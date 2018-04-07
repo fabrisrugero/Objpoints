@@ -22,9 +22,11 @@ Tools::open::open(Menu Index) : option(){
 	this->index = static_cast<int>(Index) + 1;
 }
 bool Tools::open::update(){
-	std::cout << "Enter FileName: ";
-	option::removeKeysPressed(); 
+	std::cout << "Enter FileName: "; option::removeKeysPressed(); 
 	option::processKeysPressed(option::alphanumeric);
+	if (this->IsValidInput()){
+
+	}
 	return false;
 }
 bool Tools::open::IsValidInput(){
@@ -34,7 +36,13 @@ bool Tools::open::IsValidInput(){
 		this->Indexer = this->decimalplaces;
 		for (this->InDexer = 0; this->InDexer < this->decimalplaces * 2; this->InDexer = +this->decimalplaces){
 			if (!this->extMatcher(this->InDexer, this->decimalplaces)) continue;
-			return this->dbOrImage = true;
+			this->Indexer = strlen(option::validUserInputs);    
+			wchar_t* wtext = new wchar_t[this->Indexer];
+			this->IsDbImage = this->decimalplaces > 2;
+			mbstowcs(wtext, option::validUserInputs, this->Indexer + 1);
+			DWORD dwAttrib = GetFileAttributes(wtext);
+			this->Indexer = (dwAttrib != INVALID_FILE_ATTRIBUTES &&!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+			delete[] wtext; return static_cast<bool>(this->Indexer);
 		}	
 	}
 	return false;

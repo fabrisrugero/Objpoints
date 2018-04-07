@@ -11,7 +11,7 @@ namespace Tools{
 
 	private:
 		int InDexer;
-		bool dbOrImage;
+		bool IsDbImage;
 		int decimalplaces;
 		static const char* dbs;
 		static const char* pngs;
