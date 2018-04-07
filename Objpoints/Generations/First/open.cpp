@@ -1,4 +1,8 @@
 #include "open.h"
+const char* dbs = "dbDB";
+const char* pngs = "pngPNG";
+const char* jpgs = "jpgJPG";
+const char* jpegs = "jpegJPEG";
 void Tools::open::outputIntroductions(){
 	option::clearConsoleScreen();
 	std::cout << "Only the following file formats will be accepted:\n";
@@ -24,15 +28,35 @@ bool Tools::open::update(){
 	return false;
 }
 bool Tools::open::IsValidInput(){
-	this->Indexer = 0;
-	if (option::IsValidInput()){
-		if (option::decimalIndex >= 0){
-			while (option::validUserInputs[option::decimalIndex + this->Indexer] != '\0') this->Indexer++;
-
-		}
+	if (option::IsValidInput() && option::decimalIndex >= 0){
+		while (option::validUserInputs[option::decimalIndex + this->decimalplaces] != '\0') this->decimalplaces++;
+		if (this->decimalplaces < 2 || this->decimalplaces > 4) return false;
+		this->Indexer = this->decimalplaces;
+		for (this->InDexer = 0; this->InDexer < this->decimalplaces * 2; this->InDexer = +this->decimalplaces){
+			if (!this->extMatcher(this->InDexer, this->decimalplaces)) continue;
+			return this->dbOrImage = true;
+		}	
 	}
 	return false;
 };
+bool Tools::open::extMatcher(int start, int ext){
+	switch (ext){
+	case 2:
+		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
+			if (validUserInputs[option::decimalIndex + this->Indexer] != dbs[start + this->Indexer]) return false;
+		return true;
+	case 3:
+		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
+			if (validUserInputs[option::decimalIndex + this->Indexer] != pngs[start + this->Indexer]) break;
+		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
+			if (validUserInputs[option::decimalIndex + this->Indexer] != jpgs[start + this->Indexer]) return false;
+		return true;
+	case 4:
+		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
+			if (validUserInputs[option::decimalIndex + this->Indexer] != jpegs[start + this->Indexer]) return false;
+		return true;
+	}
+}
 Tools::open::~open(){
 
 }
