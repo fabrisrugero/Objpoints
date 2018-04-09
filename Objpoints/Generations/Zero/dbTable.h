@@ -8,12 +8,4 @@ namespace Tools{
 	private:
 
 	};
-
-	dbTable::dbTable()
-	{
-	}
-
-	dbTable::~dbTable()
-	{
-	}
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "../../Enums/enums.h"
+#include "dbTable.h"
 #include <Windows.h>
 #include <iostream>
 #include <stdlib.h>
@@ -10,7 +11,6 @@ namespace Tools{
 		~option();
 		virtual bool update();
 		option(int interations = 1);
-		virtual bool IsValidInput();
 		static void removeKeysPressed();
 		static void clearConsoleScreen();
 		static const int alphanumeric = 63;
@@ -23,6 +23,8 @@ namespace Tools{
 		static bool outputErrorToSecreen(int option);
 		static const int maxinterations = 144;
 		static char* validUserInputs;
+		static Tools::dbTable* table;
+		virtual bool IsValidInput();
 		static int decimalIndex;
 		int interations;
 		int interation;

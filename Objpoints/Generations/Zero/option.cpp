@@ -6,6 +6,7 @@ Tools::option::~option(){
 	delete[] results;
 }
 int Tools::option::decimalIndex = -1;
+Tools::dbTable* Tools::option::table = nullptr;
 bool Tools::option::update(){
 	return true;
 }

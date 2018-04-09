@@ -1,8 +1,9 @@
 #include "open.h"
-const char* dbs = "dbDB";
-const char* pngs = "pngPNG";
-const char* jpgs = "jpgJPG";
-const char* jpegs = "jpegJPEG";
+#include "settings.h"
+const char* Tools::open::dbs = "dbDB";
+const char* Tools::open::pngs = "pngPNG";
+const char* Tools::open::jpgs = "jpgJPG";
+const char* Tools::open::jpegs = "jpegJPEG";
 void Tools::open::outputIntroductions(){
 	option::clearConsoleScreen();
 	std::cout << "Only the following file formats will be accepted:\n";
@@ -21,11 +22,28 @@ void Tools::open::output(bool results){
 Tools::open::open(Menu Index) : option(){
 	this->index = static_cast<int>(Index) + 1;
 }
+bool Tools::open::opendb(){
+	if (!this->IsDbImage){
+
+		return true;
+	}
+	else
+	{
+
+	}
+}
 bool Tools::open::update(){
 	std::cout << "Enter FileName: "; option::removeKeysPressed(); 
 	option::processKeysPressed(option::alphanumeric);
-	if (this->IsValidInput()){
-
+	if (this->IsValidInput())
+		return this->opendb();
+	else {
+		if (Tools::settings::setPath(Tools::settings::defaultdb) && this->IsValidInput())
+			return this->opendb();
+		else
+			for (this->Indexer = 0; this->Indexer < Tools::settings::dbs; this->Indexer++)
+				if (Tools::settings::setPath(this->Indexer) && this->IsValidInput())
+					return this->opendb();
 	}
 	return false;
 }
@@ -38,17 +56,19 @@ bool Tools::open::IsValidInput(){
 			if (!this->extMatcher(this->InDexer, this->decimalplaces)) continue;
 			this->Indexer = strlen(option::validUserInputs);    
 			wchar_t* wtext = new wchar_t[this->Indexer];
-			this->IsDbImage = this->decimalplaces > 2;
-			mbstowcs(wtext, option::validUserInputs, this->Indexer + 1);
+			this->IsDbImage = this->decimalplaces > 2; size_t outSize;
+			mbstowcs_s(&outSize, wtext, this->Indexer + 1, option::validUserInputs, this->Indexer + 1);
 			DWORD dwAttrib = GetFileAttributes(wtext);
-			this->Indexer = (dwAttrib != INVALID_FILE_ATTRIBUTES &&!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-			delete[] wtext; return static_cast<bool>(this->Indexer);
+			bool result = (dwAttrib != INVALID_FILE_ATTRIBUTES 
+				&&!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+			delete[] wtext; return result;
 		}	
 	}
 	return false;
 };
 bool Tools::open::extMatcher(int start, int ext){
 	switch (ext){
+	default: return false;
 	case 2:
 		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
 			if (validUserInputs[option::decimalIndex + this->Indexer] != dbs[start + this->Indexer]) return false;
