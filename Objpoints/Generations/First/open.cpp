@@ -20,11 +20,19 @@ void Tools::open::output(bool results){
 	}
 }
 Tools::open::open(Menu Index) : option(){
+	this->table = nullptr;
 	this->index = static_cast<int>(Index) + 1;
 }
 bool Tools::open::opendb(){
 	if (!this->IsDbImage){
+		if (this->table != nullptr && !this->table->connectedTo(option::validUserInputs)){
+			delete this->table; 
+			this->table = new Tools::dbTable(option::validUserInputs);
+			if (!this->table->errors()) this->table->select(Tools::content::distinct);
+		}
+		else if (this->table != nullptr){
 
+		}
 		return true;
 	}
 	else
@@ -45,10 +53,12 @@ bool Tools::open::update(){
 				if (Tools::settings::setPath(this->Indexer) && this->IsValidInput())
 					return this->opendb();
 	}
+	std::cout <<" Error: unable to open a file including any defualts set in settings \n" 
+		<< "press "<< this->index <<" to try again or press enter to exit" << std::endl;
 	return false;
 }
 bool Tools::open::IsValidInput(){
-	if (option::IsValidInput() && option::decimalIndex >= 0){
+	if (option::IsValidInput() && option::decimalIndex > 0){
 		while (option::validUserInputs[option::decimalIndex + this->decimalplaces] != '\0') this->decimalplaces++;
 		if (this->decimalplaces < 2 || this->decimalplaces > 4) return false;
 		this->Indexer = this->decimalplaces;

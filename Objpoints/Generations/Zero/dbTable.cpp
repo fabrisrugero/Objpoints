@@ -1,6 +1,10 @@
 #include "dbTable.h"
-Tools::dbTable::dbTable()
+bool Tools::dbTable::connectedTo(char* db, int end, int str){
+
+};
+Tools::dbTable::dbTable(char* db, int end, int str)
 {
+
 }
 
 Tools::dbTable::~dbTable()

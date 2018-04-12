@@ -23,7 +23,6 @@ namespace Tools{
 		static bool outputErrorToSecreen(int option);
 		static const int maxinterations = 144;
 		static char* validUserInputs;
-		static Tools::dbTable* table;
 		virtual bool IsValidInput();
 		static int decimalIndex;
 		int interations;

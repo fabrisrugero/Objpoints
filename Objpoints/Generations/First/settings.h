@@ -4,9 +4,10 @@ namespace Tools{
 		void output(bool results = true);
 		static bool setPath(int index);
 		void outputIntroductions();
-		settings(Menu index);
-		static char* dbPaths;
+		static char* defaultdir;
+		static char** dbPaths;
 		static int defaultdb;
+		settings(Menu index);
 		static int dbs;
 		bool update();
 		~settings();

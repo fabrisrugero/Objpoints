@@ -6,6 +6,7 @@ namespace Tools{
 		bool IsDbImage;
 		int decimalplaces;
 		bool IsValidInput();
+		Tools::dbTable* table;
 		static const char* dbs;
 		static const char* pngs;
 		static const char* jpgs;
