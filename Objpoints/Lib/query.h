@@ -6,9 +6,9 @@ namespace Tools{
 	public:
 		~query();
 		enum Data{ TYPE, VALUE };
-		int columnindex(const char* columname);
 		int dimensions(bool rowOrccolumns);
 		bool readcell(char *cell, int index);
+		int columnindex(const char* columname);
 		int cellposition(int col, int rowindex);
 		size_t getlenght(int columindex, int rowindex);
 		void connectTo(char* sql, const char* database);
@@ -42,8 +42,8 @@ namespace Tools{
 		int max_columns;
 		int* types_lenght;
 		int* values_lenght;
-		void clearbuffer();
 		char* querychararcters;
+		void clearbuffer(bool beforeBuild = true);
 		int IsEqual(const char *a, const char *b);
 		void initcolumns(char*** arr, int max_columns);
 		void concantenate(const char *a, int b, const char *c, int d);

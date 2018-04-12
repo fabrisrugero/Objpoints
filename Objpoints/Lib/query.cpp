@@ -15,10 +15,22 @@ Tools::query::~query(){
 	delete[] this->values_lenght;
 	delete[] this->querychararcters;
 };
-void Tools::query::clearbuffer(){
-	this->position = 0;
-	for (this->indexer = 0; this->indexer < this->query_size; this->indexer++)
-		this->querychararcters[this->indexer] = '\0';
+
+void Tools::query::clearbuffer(bool beforeBuild){
+	if (beforeBuild){
+		for (this->indexer = 0; this->indexer < this->query_size; this->indexer++)
+			this->querychararcters[this->indexer] = '\0';
+		this->position = 0;
+	}
+	else{
+		for (this->indexer = 0; this->indexer < this->max_columns; this->indexer++){
+			for (this->Indexer = 0; this->Indexer < this->values_lenght[this->indexer]; this->Indexer++)
+				this->values[this->indexer][this->Indexer] = '\0';
+			for (this->Indexer = 0; this->Indexer < this->types_lenght[this->indexer]; this->Indexer++)
+				this->types[this->indexer][this->Indexer] = '\0';
+			this->values_lenght[this->indexer] = this->types_lenght[this->indexer] = 0;
+		}
+	}
 };
 void Tools::query::clearbuffer(char* value, int lenght, int bufferlenght){
 	for (this->indexer = lenght; this->indexer < bufferlenght ; this->indexer++)
@@ -89,6 +101,7 @@ void Tools::query::deleteRowInTable(char* sql, const char *table, int lenght, in
 	this->concantenate(this->values[column], this->values_lenght[column], ";", 1);
 	for (this->indexer = 0; this->indexer < this->query_size; this->indexer++)
 		sql[this->indexer] = this->querychararcters[this->indexer];
+	this->clearbuffer(false);
 };
 void Tools::query::updateRowInTable(char* sql, const char *table, int lenght, int column){
 	this->clearbuffer();
@@ -106,6 +119,7 @@ void Tools::query::updateRowInTable(char* sql, const char *table, int lenght, in
 	this->concantenate(this->values[column], this->values_lenght[column], ";", 1);
 	for (this->indexer = 0; this->indexer < this->query_size; this->indexer++)
 		sql[this->indexer] = this->querychararcters[this->indexer];
+	this->clearbuffer(false);
 };
 void Tools::query::insertIntoTable(char* sql, const char *table, int namelenght){
 	this->clearbuffer();
@@ -126,6 +140,7 @@ void Tools::query::insertIntoTable(char* sql, const char *table, int namelenght)
 	this->concantenate(");", 2, table, 0);
 	for (this->indexer = 0; this->indexer < this->query_size; this->indexer++)
 		sql[this->indexer] = this->querychararcters[this->indexer];
+	this->clearbuffer(false);
 };
 void Tools::query::selectFromTable(char* sql, const char *table, int lenght, int column){
 	this->clearbuffer();
@@ -146,6 +161,7 @@ void Tools::query::selectFromTable(char* sql, const char *table, int lenght, int
 	}
 	for (this->indexer = 0; this->indexer < this->query_size; this->indexer++)
 		sql[this->indexer] = this->querychararcters[this->indexer];
+	this->clearbuffer(false);
 };
 void Tools::query::concantenate(const char *a, int b, const char *c, int d){
 	for (this->indexer = 0; this->position + this->indexer < this->query_size && this->indexer < b; this->indexer++)

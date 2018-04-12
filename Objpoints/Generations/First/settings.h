@@ -6,6 +6,7 @@ namespace Tools{
 		void outputIntroductions();
 		static char* defaultdir;
 		static char** dbPaths;
+		static char** objects;
 		static int defaultdb;
 		settings(Menu index);
 		static int dbs;

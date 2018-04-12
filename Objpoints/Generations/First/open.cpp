@@ -25,19 +25,20 @@ Tools::open::open(Menu Index) : option(){
 }
 bool Tools::open::opendb(){
 	if (!this->IsDbImage){
-		if (this->table != nullptr && !this->table->connectedTo(option::validUserInputs)){
-			delete this->table; 
-			this->table = new Tools::dbTable(option::validUserInputs);
-			if (!this->table->errors()) this->table->select(Tools::content::distinct);
-		}
-		else if (this->table != nullptr){
+		if (this->table != nullptr){
+			if (!this->table->connectedTo(option::validUserInputs)){
+				delete this->table;
+				this->table = new Tools::dbTable(option::validUserInputs);
+				if (!this->table->errors()) this->table->select(Tools::content::distinct);
+			}
+			else 
+				this->table->select(Tools::content::distinct);
 
 		}
 		return true;
 	}
-	else
-	{
-
+	else{
+		return false;
 	}
 }
 bool Tools::open::update(){
