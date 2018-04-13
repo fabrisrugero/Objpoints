@@ -1,3 +1,4 @@
+#pragma once
 #include "../Zero/option.h"
 namespace Tools{
 	class points : public option{

@@ -38,6 +38,8 @@ void Tools::query::clearbuffer(char* value, int lenght, int bufferlenght){
 };
 Tools::query::query(const char* directory, int query_size, int max_chars, int max_columns){
 	this->indexer = 0;
+	this->sizes = nullptr;
+	this->results = nullptr;
 	this->max_chars = max_chars;
 	this->query_size = query_size;
 	this->max_columns = max_columns;
@@ -59,10 +61,11 @@ void Tools::query::connectTo(char* sql, const char* database){
 		sql[this->indexer] = this->querychararcters[this->indexer];
 };
 void Tools::query::copyrecords(char** query_results, int rows, int columns){
-	this->rows = rows;
-	this->columns = columns;
-	this->sizes = new size_t[rows*columns + columns];
+	this->deletecolms(&this->results, this->rows*this->columns + this->columns);
 	this->initcolumns(&this->results, rows*columns + columns);
+	if (this->sizes != nullptr) delete[] this->sizes;
+	this->sizes = new size_t[rows*columns + columns];
+	this->rows = rows; this->columns = columns;
 	for (this->Indexer = 0; this->Indexer <= rows; ++this->Indexer){
 		for (this->indexer = 0; this->indexer < columns; ++this->indexer){
 			int cellPosition = (this->Indexer * columns) + this->indexer;
@@ -185,12 +188,17 @@ void Tools::query::add(const char* value, Tools::query::Data column, bool addmor
 	else this->index = 0;
 	this->indexer = 0;
 };
-void Tools::query::initcolumns(char*** arr, int max_columns){
-	*arr = new char*[max_columns];
-	for (this->indexer = 0; this->indexer < max_columns; this->indexer++)
+void Tools::query::initcolumns(char*** arr, int max_lenght){
+	*arr = new char*[max_lenght];
+	for (this->indexer = 0; this->indexer < max_lenght; this->indexer++)
 		(*arr)[this->indexer] = new char[this->max_chars + 1]();
 };
-
+void Tools::query::deletecolms(char*** arr, int max_lenght){
+	if (*arr == nullptr) return;
+	for (this->indexer = 0; this->indexer < max_lenght; this->indexer++)
+		delete[](*arr)[this->indexer];
+	delete[](*arr);
+};
 int Tools::query::IsEqual(const char *a, const char *b){
 	for (int i = 0; a[i] != '\0'; i++)
 		if (a[i] != b[i])

@@ -45,7 +45,8 @@ namespace Tools{
 		char* querychararcters;
 		void clearbuffer(bool beforeBuild = true);
 		int IsEqual(const char *a, const char *b);
-		void initcolumns(char*** arr, int max_columns);
+		void initcolumns(char*** arr, int max_lenght);
+		void deletecolms(char*** arr, int max_lenght);
 		void concantenate(const char *a, int b, const char *c, int d);
 	};
 }

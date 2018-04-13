@@ -1,9 +1,12 @@
+#pragma once
 #include "../Zero/option.h"
 namespace Tools{
 	class open : public option{
 		int InDexer;
+		char* errmsg;
 		bool opendb();
 		bool IsDbImage;
+		bool hasErrmsg;
 		int decimalplaces;
 		bool IsValidInput();
 		Tools::dbTable* table;

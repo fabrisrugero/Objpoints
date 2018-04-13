@@ -17,19 +17,24 @@ void Tools::open::output(bool results){
 		std::cout << this->index << ") open local image/database" << std::endl;
 	else{
 		option::clearConsoleScreen();
+		if (this->hasErrmsg) std::cout << this->errmsg;
+		else{
+
+		}
 	}
 }
 Tools::open::open(Menu Index) : option(){
+	this->errmsg = new char[settings::QUERY_SIZE];
+	this->index = static_cast<int>(Index)+1;
 	this->table = nullptr;
-	this->index = static_cast<int>(Index) + 1;
+
 }
 bool Tools::open::opendb(){
 	if (!this->IsDbImage){
 		if (this->table != nullptr){
-			if (!this->table->connectedTo(option::validUserInputs)){
-				delete this->table;
-				this->table = new Tools::dbTable(option::validUserInputs);
-				if (!this->table->errors()) this->table->select(Tools::content::distinct);
+			if (this->hasErrmsg = !this->table->hasErrors(this->errmsg) && !this->table->connectedTo(option::validUserInputs)){
+				delete this->table; this->table = new Tools::dbTable(option::validUserInputs);
+				if (this->hasErrmsg = !this->table->hasErrors(this->errmsg)) this->table->select(Tools::content::distinct);
 			}
 			else 
 				this->table->select(Tools::content::distinct);

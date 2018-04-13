@@ -1,3 +1,4 @@
+#pragma once
 #include "../Zero/option.h"
 namespace Tools{
 	class history: public option{
