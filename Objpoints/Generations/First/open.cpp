@@ -31,14 +31,17 @@ Tools::open::open(Menu Index) : option(){
 }
 bool Tools::open::opendb(){
 	if (!this->IsDbImage){
-		if (this->table != nullptr){
-			if (this->hasErrmsg = !this->table->hasErrors(this->errmsg) && !this->table->connectedTo(option::validUserInputs)){
-				delete this->table; this->table = new Tools::dbTable(option::validUserInputs);
-				if (this->hasErrmsg = !this->table->hasErrors(this->errmsg)) this->table->select(Tools::content::distinct);
-			}
-			else 
-				this->table->select(Tools::content::distinct);
-
+		if (this->hasErrmsg = !this->table->hasErrors(this->errmsg) && !this->table->connectedTo(option::validUserInputs)){
+			if (this->table != nullptr) delete this->table; this->table = new Tools::dbTable(option::validUserInputs);
+			if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) return false; }
+		query* query = this->table->select(Tools::content::distinct);
+		if (settings::groups != nullptr) delete[] settings::groups;
+		if (query->dimensions(true) == 0) settings::groups = nullptr;
+		else settings::groups = new char*[query->dimensions(true)];
+		for (this->Indexer = 0; this->Indexer < query->dimensions(true); this->Indexer++){
+			settings::groups[this->Indexer] = new char[settings::MAX_CHARS];
+			query->readcell(settings::groups[this->Indexer], query->cellposition(query->COL_ONE, this->Indexer));
+			query->clearbuffer(settings::groups[this->Indexer], query->getlenght(query->COL_ONE, this->Indexer), settings::MAX_CHARS);
 		}
 		return true;
 	}
@@ -59,8 +62,9 @@ bool Tools::open::update(){
 				if (Tools::settings::setPath(this->Indexer) && this->IsValidInput())
 					return this->opendb();
 	}
-	std::cout <<" Error: unable to open a file including any defualts set in settings \n" 
-		<< "press "<< this->index <<" to try again or press enter to exit" << std::endl;
+	if (this->hasErrmsg) std::cout << this->errmsg;
+	else std::cout << " Error: unable to open a file including any defualts set in settings";
+	std::cout << "\npress " << this->index << " to try again or press enter to exit" << std::endl;
 	return false;
 }
 bool Tools::open::IsValidInput(){

@@ -6,11 +6,11 @@ namespace Tools{
 		void output(bool results = true);
 		static const int MAX_COLUMNS = 7;
 		static const int MAX_CHARS = 50;
-		static bool setPath(int index);
+		static bool setPath(int index);// set the validuserinputs to valid database
 		void outputIntroductions();
 		static int maxGroupIndex;
 		static char* defaultdir;
-		static char** dbPaths;
+		static char** databases;
 		static char** groups;
 		static int defaultdb;
 		settings(Menu index);

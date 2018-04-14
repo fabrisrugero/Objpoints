@@ -26,12 +26,12 @@ void Tools::dbTable::where(columns column, const char* value){
 	this->query->clearbuffer(this->querystatement, 0, settings::QUERY_SIZE);
 	this->query->selectFromTable(this->querystatement, this->table, this->lenght, this->query->COL_ONE);
 };
-void Tools::dbTable::select(Tools::content content){
+Tools::query* Tools::dbTable::select(content content){
 	this->select(static_cast<int>(content));
 	char **results = nullptr; int rows, columns; 
 	if (sqlite3_get_table(this->db, this->sqlcommand, &results, &rows, &columns, nullptr)) return this->handlErrors();
 	else this->query->copyrecords(results, rows, columns);
-	sqlite3_free_table(results);
+	sqlite3_free_table(results); return this->query;
 };
 void Tools::dbTable::select(int content){
 	switch (content){
@@ -83,7 +83,7 @@ void Tools::dbTable::initcolumns(){
 	this->cols[radius] = "radius";
 	this->cols[id] = "id";
 };
-void Tools::dbTable::handlErrors(){
+Tools::query* Tools::dbTable::handlErrors(){
 	this->errmsg = sqlite3_errmsg(this->db);
 	for (this->indexer = 0; this->indexer < settings::QUERY_SIZE; this->indexer++)
 		if (this->errmsg[this->indexer] == '\0') break;
@@ -91,6 +91,7 @@ void Tools::dbTable::handlErrors(){
 	this->errors = new char[this->indexer];
 	for (this->Indexer = 0; this->Indexer < this->indexer; this->Indexer++)
 		this->errors[this->Indexer] = this->errmsg[this->Indexer];
+	return nullptr;
 };
 Tools::dbTable::~dbTable(){
 
