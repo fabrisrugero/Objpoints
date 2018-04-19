@@ -10,7 +10,7 @@ namespace Tools{
 	public:
 		~option();
 		virtual bool update();
-		option(int interations = 1);
+		option(int buffersize);
 		static void removeKeysPressed();
 		static void clearConsoleScreen();
 		static const int alphanumeric = 63;
@@ -21,11 +21,10 @@ namespace Tools{
 		static void processKeysPressed(int digits = 11);
 	protected:
 		static bool outputErrorToSecreen(int option);
-		static const int maxinterations = 144;
 		static char* validUserInputs;
 		virtual bool IsValidInput();
 		static int decimalIndex;
-		int interations;
+		int buffersize;
 		int interation;
 		char *results;
 		int Indexer;

@@ -16,10 +16,9 @@ char* Tools::option::userInputs = nullptr;
 char* Tools::option::validInputs = nullptr;
 char* Tools::option::validUserInputs = nullptr;
 const char* alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRETUVWZYZ";
-Tools::option::option(int interations){
-	this->interations = interations < this->maxinterations ?
-	interations : this->maxinterations;
-	this->results = new char[this->interations]();
+Tools::option::option(int buffersize){
+	this->buffersize = buffersize;
+	this->results = new char[buffersize]();
 	if (option::validInputs != nullptr) return;
 	option::validInputs = new char[alphanumeric + 1];
 	option::validInputs[this->interation] = '-';

@@ -14,7 +14,7 @@ void Tools::settings::output(bool results){
 		option::clearConsoleScreen();
 	}
 }
-Tools::settings::settings(Menu Index) : option(){
+Tools::settings::settings(Menu Index) : option(settings::MAX_CHARS){
 	this->index = static_cast<int>(Index)+1;
 }
 bool Tools::settings::update(){

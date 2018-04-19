@@ -1,4 +1,5 @@
 #include "history.h"
+#include "settings.h"
 void Tools::history::outputIntroductions(){
 	option::clearConsoleScreen();
 	std::cout << "Only the following time formats are accepted: " << std::endl;
@@ -14,7 +15,7 @@ void Tools::history::output(bool results){
 		option::clearConsoleScreen();
 	}
 }
-Tools::history::history(Menu Index) : option(){
+Tools::history::history(Menu Index) : option(settings::MAX_CHARS){
 	this->index = static_cast<int>(Index)+1;
 }
 bool Tools::history::update(){

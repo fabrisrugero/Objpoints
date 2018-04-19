@@ -27,13 +27,12 @@ void Tools::dbTable::where(columns column, const char* value){
 	this->query->selectFromTable(this->querystatement, this->table, this->lenght, this->query->COL_ONE);
 };
 Tools::query* Tools::dbTable::select(content content){
-	this->select(static_cast<int>(content));
-	char **results = nullptr; int rows, columns; 
+	if (!this->select(static_cast<int>(content))) return nullptr; char **results = nullptr; int rows, columns;
 	if (sqlite3_get_table(this->db, this->sqlcommand, &results, &rows, &columns, nullptr)) return this->handlErrors();
 	else this->query->copyrecords(results, rows, columns);
 	sqlite3_free_table(results); return this->query;
 };
-void Tools::dbTable::select(int content){
+bool Tools::dbTable::select(int content){
 	switch (content){
 	case custom: 
 		break;

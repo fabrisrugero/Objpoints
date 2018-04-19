@@ -18,7 +18,7 @@ namespace Tools{
 		char* querystatement;
 		const int lenght = 14;
 		const char* sqlcommand;
-		void select(int content);
+		bool select(int content);
 		Tools::query* handlErrors();
 		int IsEqual(const char *a, const char *b);
 	public:

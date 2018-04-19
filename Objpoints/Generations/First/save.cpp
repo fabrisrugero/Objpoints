@@ -1,4 +1,5 @@
 #include "save.h"
+#include "settings.h"
 void Tools::save::outputIntroductions(){
 	option::clearConsoleScreen();
 	std::cout << "Only the following formats and numbers are accepted: " << std::endl;
@@ -14,7 +15,7 @@ void Tools::save::output(bool results){
 		option::clearConsoleScreen();
 	}
 }
-Tools::save::save(Menu Index) : option(){
+Tools::save::save(Menu Index) : option(settings::MAX_CHARS){
 	this->index = static_cast<int>(Index)+1;
 }
 bool Tools::save::update(){

@@ -18,12 +18,25 @@ void Tools::open::output(bool results){
 	else{
 		option::clearConsoleScreen();
 		if (this->hasErrmsg) std::cout << this->errmsg;
-		else{
+		else{	
 
+			int rows, columns, index; query* query = this->table->select(Tools::content::group);
+			while (query != nullptr){
+				rows = query->dimensions(true);
+				for (this->Indexer = 0; this->Indexer < rows; this->Indexer++){
+					columns = query->dimensions(false);
+					for (this->interation = 0; this->interation < columns; this->interation++){
+						index = query->cellposition(this->interation, this->Indexer);
+						std::cout << "|"; query->readcell(this->results, index);
+						std::cout << std::setw(20) << this->results; }
+					std::cout << "|\n"; break;
+				}
+				this->table->select(Tools::content::next);
+			}
 		}
 	}
 }
-Tools::open::open(Menu Index) : option(){
+Tools::open::open(Menu Index) : option(settings::MAX_CHARS){
 	this->errmsg = new char[settings::QUERY_SIZE];
 	this->index = static_cast<int>(Index)+1;
 	this->table = nullptr;
@@ -36,9 +49,10 @@ bool Tools::open::opendb(){
 			if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) return false; }
 		query* query = this->table->select(Tools::content::distinct);
 		if (settings::groups != nullptr) delete[] settings::groups;
-		if (query->dimensions(true) == 0) settings::groups = nullptr;
-		else settings::groups = new char*[query->dimensions(true)];
-		for (this->Indexer = 0; this->Indexer < query->dimensions(true); this->Indexer++){
+		settings::grps = query->dimensions(true);
+		if (settings::grps == 0) settings::groups = nullptr;
+		else settings::groups = new char*[settings::grps];
+		for (this->Indexer = 0; this->Indexer < settings::grps; this->Indexer++){
 			settings::groups[this->Indexer] = new char[settings::MAX_CHARS];
 			query->readcell(settings::groups[this->Indexer], query->cellposition(query->COL_ONE, this->Indexer));
 			query->clearbuffer(settings::groups[this->Indexer], query->getlenght(query->COL_ONE, this->Indexer), settings::MAX_CHARS);

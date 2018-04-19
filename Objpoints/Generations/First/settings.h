@@ -14,6 +14,7 @@ namespace Tools{
 		static char** groups;
 		static int defaultdb;
 		settings(Menu index);
+		static int grps;
 		static int dbs;
 		bool update();
 		~settings();

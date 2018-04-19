@@ -1,4 +1,5 @@
 #include "points.h"
+#include "settings.h"
 void Tools::points::outputIntroductions(){
 	option::clearConsoleScreen();
 	std::cout << "Only the following comands/queries are accepted:\n";
@@ -16,7 +17,7 @@ void Tools::points::output(bool results){
 		option::clearConsoleScreen();
 	}
 }
-Tools::points::points(Menu Index) : option(){
+Tools::points::points(Menu Index) : option(settings::MAX_CHARS){
 	this->index = static_cast<int>(Index)+1;
 }
 bool Tools::points::update(){
