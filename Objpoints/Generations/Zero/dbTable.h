@@ -7,6 +7,10 @@ namespace Tools{
 		sqlite3 *db;
 		int indexer;
 		int Indexer;
+		int indeXer;
+		int inDexer;
+		int* widths;
+		int columns;
 		char* errors;
 		char* database;
 		int groupIndex;
@@ -23,11 +27,11 @@ namespace Tools{
 		int IsEqual(const char *a, const char *b);
 	public:
 		~dbTable();
+		bool connectedTo(char* db);
 		bool hasErrors(char* arr = nullptr);
 		Tools::query* select(content content);
+		int initcolumns(char* output, int setwidth);
 		dbTable(char* db, int end = 0, int str = 0);
-		void where(columns column, const char* value);
-		bool connectedTo(char* db, int end = 0, int str = 0);
-
+		void where(Tools::columns column, const char* value);
 	};
 }

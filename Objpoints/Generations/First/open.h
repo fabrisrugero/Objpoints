@@ -9,6 +9,7 @@ namespace Tools{
 		bool hasErrmsg;
 		int decimalplaces;
 		bool IsValidInput();
+		char colsoutput[500];
 		Tools::dbTable* table;
 		static const char* dbs;
 		static const char* pngs;
