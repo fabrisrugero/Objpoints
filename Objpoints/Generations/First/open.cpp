@@ -1,5 +1,6 @@
 #include "open.h"
 #include "settings.h"
+#include "Shlwapi.h"
 const char* Tools::open::dbs = "dbDB";
 const char* Tools::open::pngs = "pngPNG";
 const char* Tools::open::jpgs = "jpgJPG";
@@ -9,17 +10,17 @@ bool Tools::open::extMatcher(int start, int ext){
 	default: return false;
 	case 2:
 		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
-			if (validUserInputs[option::decimalIndex + this->Indexer] != dbs[start + this->Indexer]) return false;
+			if (validUserInputs[option::decimalIndex + this->Indexer + 1] != dbs[start + this->Indexer]) return false;
 		return true;
 	case 3:
 		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
-			if (validUserInputs[option::decimalIndex + this->Indexer] != pngs[start + this->Indexer]) break;
+			if (validUserInputs[option::decimalIndex + this->Indexer + 1] != pngs[start + this->Indexer]) break;
 		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
-			if (validUserInputs[option::decimalIndex + this->Indexer] != jpgs[start + this->Indexer]) return false;
+			if (validUserInputs[option::decimalIndex + this->Indexer + 1] != jpgs[start + this->Indexer]) return false;
 		return true;
 	case 4:
 		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
-			if (validUserInputs[option::decimalIndex + this->Indexer] != jpegs[start + this->Indexer]) return false;
+			if (validUserInputs[option::decimalIndex + this->Indexer + 1] != jpegs[start + this->Indexer]) return false;
 		return true;
 	}
 }
@@ -33,17 +34,16 @@ void Tools::open::outputIntroductions(){
 };
 void Tools::open::output(bool results){
 	if (!results)
-		std::cout << this->index << ") open local image/database" << std::endl;
+		std::cout << this->index << ") open image/database" << std::endl;
 	else{
 		option::clearConsoleScreen();
 		if (this->hasErrmsg) std::cout << this->errmsg;
 		else{	
-			int rows, columns, index; std::cout << this->colsoutput;
+			int rows, index, columns = this->table->initcolumns(this->colsoutput, 20);
 			query* query = this->table->select(Tools::content::group);
 			while (query != nullptr){
-				rows = query->dimensions(true);
+				rows = query->dimensions(true); std::cout << this->colsoutput;
 				for (this->Indexer = 0; this->Indexer < rows; this->Indexer++){
-					columns = query->dimensions(false);
 					for (this->interation = 0; this->interation < columns; this->interation++){
 						index = query->cellposition(this->interation, this->Indexer);
 						std::cout << "|"; query->readcell(this->results, index);
@@ -57,13 +57,16 @@ void Tools::open::output(bool results){
 }
 bool Tools::open::IsValidInput(){
 	if (option::IsValidInput() && option::decimalIndex > 0){
-		while (option::validUserInputs[option::decimalIndex + this->decimalplaces] != '\0') this->decimalplaces++;
+		while (option::validUserInputs[option::decimalIndex + this->decimalplaces + 1] != '\0') this->decimalplaces++;
 		if (this->decimalplaces < 2 || this->decimalplaces > 4) return false;
 		this->Indexer = this->decimalplaces;
-		for (this->InDexer = 0; this->InDexer < this->decimalplaces * 2; this->InDexer = +this->decimalplaces){
+		for (this->InDexer = 0; this->InDexer < this->decimalplaces * 2; this->InDexer += this->decimalplaces){
 			if (!this->extMatcher(this->InDexer, this->decimalplaces)) continue;
+			wchar_t* wtext = new wchar_t[100 + 1];
+			int bytes = GetModuleFileName(NULL, wtext, 100);
+			PathRemoveFileSpec(wtext);
 			this->Indexer = strlen(option::validUserInputs);    
-			wchar_t* wtext = new wchar_t[this->Indexer];
+			wtext = new wchar_t[this->Indexer + 1];
 			this->IsDbImage = this->decimalplaces > 2; size_t outSize;
 			mbstowcs_s(&outSize, wtext, this->Indexer + 1, option::validUserInputs, this->Indexer + 1);
 			DWORD dwAttrib = GetFileAttributes(wtext);
@@ -75,11 +78,9 @@ bool Tools::open::IsValidInput(){
 	return false;
 };
 Tools::open::open(Menu Index) : option(settings::MAX_CHARS){
-	settings::setPath(settings::defaultdb, this->results);
-	this->table = new Tools::dbTable(this->results);
-	this->table->initcolumns(this->colsoutput, 20);
-	this->errmsg = new char[settings::QUERY_SIZE];
+	this->colsoutput[500] = {};
 	this->index = static_cast<int>(Index)+1;
+	this->errmsg = new char[settings::QUERY_SIZE];
 }
 bool Tools::open::opendb(){
 	if (!this->IsDbImage){
@@ -103,7 +104,7 @@ bool Tools::open::opendb(){
 	}
 }
 bool Tools::open::update(){
-	std::cout << "Enter FileName: "; option::removeKeysPressed(); 
+	std::cout << "Enter image/database: "; option::removeKeysPressed(); 
 	option::processKeysPressed(option::alphanumeric);
 	if (this->IsValidInput())
 		return this->opendb();

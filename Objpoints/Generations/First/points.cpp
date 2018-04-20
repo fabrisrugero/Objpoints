@@ -12,7 +12,7 @@ void Tools::points::outputIntroductions(){
 };
 void Tools::points::output(bool results){
 	if (!results)
-		std::cout << this->index << ") Create/modify points in an image/database" << std::endl;
+		std::cout << this->index << ") Create/modify points" << std::endl;
 	else{
 		option::clearConsoleScreen();
 	}

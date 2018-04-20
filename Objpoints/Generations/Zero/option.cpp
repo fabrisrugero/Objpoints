@@ -15,7 +15,7 @@ bool Tools::option::hasDecimal = false;
 char* Tools::option::userInputs = nullptr;
 char* Tools::option::validInputs = nullptr;
 char* Tools::option::validUserInputs = nullptr;
-const char* alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRETUVWZYZ";
+const char* alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 Tools::option::option(int buffersize){
 	this->buffersize = buffersize;
 	this->results = new char[buffersize]();
@@ -24,9 +24,9 @@ Tools::option::option(int buffersize){
 	option::validInputs[this->interation] = '-';
 	for (this->interation = 1; this->interation < 11; this->interation++)
 		option::validInputs[this->interation] = '0' + this->interation - 1;
-	for (this->interation = this->interation; this->interation < 26; this->interation++)
-		option::validInputs[this->interation] = alphabet[this->interation - 11];
-	option::validInputs[this->interation] = '\0';
+	for (this->interation = 0; this->interation < 52; this->interation++)
+		option::validInputs[this->interation + 11] = alphabet[this->interation];
+	option::validInputs[this->interation + 11] = '\0';
 }
 void Tools::option::removeKeysPressed(){
 	if (userInputs == nullptr) return;

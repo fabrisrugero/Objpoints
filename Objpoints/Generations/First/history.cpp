@@ -10,7 +10,7 @@ void Tools::history::outputIntroductions(){
 };
 void Tools::history::output(bool results){
 	if (!results)
-		std::cout << this->index << ") view all changes since application strart" << std::endl;
+		std::cout << this->index << ") view history " << std::endl;
 	else{
 		option::clearConsoleScreen();
 	}

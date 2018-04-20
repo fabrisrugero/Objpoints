@@ -1,4 +1,11 @@
 #include "settings.h"
+char* Tools::settings::defaultdir = nullptr;
+char** Tools::settings::databases = nullptr;
+char** Tools::settings::groups = nullptr;
+int Tools::settings::maxGroupIndex = 0;
+int Tools::settings::defaultdb = 0;
+int Tools::settings::grps = 0;
+int Tools::settings::dbs = 0;
 void Tools::settings::outputIntroductions(){
 	option::clearConsoleScreen();
 	std::cout << "Only the following formats and numbers are accepted: " << std::endl;
@@ -9,17 +16,24 @@ void Tools::settings::outputIntroductions(){
 };
 void Tools::settings::output(bool results){
 	if (!results)
-		std::cout << this->index << ") Celsius to Kelvin" << std::endl;
+		std::cout << this->index << ") view settings" << std::endl;
 	else{
 		option::clearConsoleScreen();
 	}
 }
 Tools::settings::settings(Menu Index) : option(settings::MAX_CHARS){
 	this->index = static_cast<int>(Index)+1;
+
 }
 bool Tools::settings::update(){
-	std::cout << "Enter Degrees Celsuis: ";
+	std::cout << "Enter command here: ";
 	option::removeKeysPressed(); option::processKeysPressed();
+	return false;
+}
+bool Tools::settings::setPath(int index, char* output){
+	return false;
+}
+bool Tools::settings::setPath(int index){
 	return false;
 }
 bool Tools::settings::IsValidInput(){

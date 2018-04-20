@@ -2,29 +2,33 @@
 #include "../First/settings.h"
 bool Tools::dbTable::select(int content){
 	switch (content){
+	default: 
+		return false;
 	case custom: 
-		break;
+		return false;
 	case group:
 		this->groupIndex = 0;
 		this->where(objectz, settings::groups[this->groupIndex]);
-		break;
+		return true;
 	case previous:
 		if (this->groupIndex > 0) this->groupIndex--;
 		else this->groupIndex = settings::maxGroupIndex;
 		this->where(objectz, settings::groups[this->groupIndex]);
-		break;
+		if (settings::maxGroupIndex == 0) return false;
+		else return true;
 	case content::next:
 		if (this->groupIndex < settings::maxGroupIndex) this->groupIndex++;
-		else if (settings::maxGroupIndex > 0) this->groupIndex = settings::maxGroupIndex;
+		else if (settings::maxGroupIndex > 0) this->groupIndex = 0;
 		this->where(objectz, settings::groups[this->groupIndex]);
-		break;
+		if (settings::maxGroupIndex == 0) return false;
+		else return true;
 	case distinct:
 		query->add("DISTINCT", query->TYPE, true);
 		query->add(this->cols[objectz], query->TYPE);
 		query->selectFromTable(this->querystatement, this->table, this->lenght);
 		for (this->indexer = 0; querystatement[this->indexer] != '\0'; this->indexer++)
 			if (querystatement[this->indexer] == ',') break; querystatement[this->indexer] = ' ';
-		break;
+		return true;
 	}
 }
 bool Tools::dbTable::hasErrors(char* arr){
@@ -66,14 +70,14 @@ void Tools::dbTable::where(Tools::columns column, const char* value){
 	this->query->selectFromTable(this->querystatement, this->table, this->lenght, this->query->COL_ONE);
 };
 int Tools::dbTable::initcolumns(char* output, int setwidth){
-	this->indeXer = -1; setwidth *= 2;
+	if (this->indeXer > 0) return this->columns; this->indeXer = -1; setwidth *= 2;
 	for (this->Indexer = 0; this->Indexer < this->columns; this->Indexer++)
 		for (this->indexer = 0; this->indexer < setwidth; this->indexer++)
 			output[this->indeXer += 1] = '-';
 	output[this->indeXer += 1] = '\n'; setwidth /= 2;
 	for (this->Indexer = 0; this->Indexer < this->columns; this->Indexer++){
 		output[this->indeXer += 1] = '|';
-		this->indexer = std::floor((setwidth - this->widths[this->Indexer]) / 2);
+		this->indexer = static_cast<int>(std::floor((setwidth - this->widths[this->Indexer]) / 2));
 		for (this->inDexer = 0; this->inDexer < this->indexer; this->inDexer++)
 			output[this->indeXer += 1] = ' ';
 		for (this->inDexer; this->inDexer < this->widths[this->Indexer]; this->inDexer++)

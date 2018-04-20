@@ -10,7 +10,7 @@ void Tools::save::outputIntroductions(){
 };
 void Tools::save::output(bool results){
 	if (!results)
-		std::cout << this->index << ") Celsius to Kelvin" << std::endl;
+		std::cout << this->index << ") Export changes" << std::endl;
 	else{
 		option::clearConsoleScreen();
 	}
