@@ -3,6 +3,7 @@
 namespace Tools{
 	class open : public option{
 		int InDexer;
+		int indeXer;
 		char* errmsg;
 		bool opendb();
 		bool IsDbImage;

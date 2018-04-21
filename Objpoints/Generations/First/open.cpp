@@ -1,6 +1,6 @@
 #include "open.h"
 #include "settings.h"
-#include "Shlwapi.h"
+//#include "Shlwapi.h"
 const char* Tools::open::dbs = "dbDB";
 const char* Tools::open::pngs = "pngPNG";
 const char* Tools::open::jpgs = "jpgJPG";
@@ -62,17 +62,31 @@ bool Tools::open::IsValidInput(){
 		this->Indexer = this->decimalplaces;
 		for (this->InDexer = 0; this->InDexer < this->decimalplaces * 2; this->InDexer += this->decimalplaces){
 			if (!this->extMatcher(this->InDexer, this->decimalplaces)) continue;
-			wchar_t* wtext = new wchar_t[100 + 1];
-			int bytes = GetModuleFileName(NULL, wtext, 100);
-			PathRemoveFileSpec(wtext);
-			this->Indexer = strlen(option::validUserInputs);    
-			wtext = new wchar_t[this->Indexer + 1];
-			this->IsDbImage = this->decimalplaces > 2; size_t outSize;
-			mbstowcs_s(&outSize, wtext, this->Indexer + 1, option::validUserInputs, this->Indexer + 1);
+			wchar_t* _wtext = new wchar_t[option::max_size + 1];
+			int bytes = GetModuleFileName(NULL, _wtext, option::max_size + 1);
+			for (this->Indexer = bytes - 1; _wtext[this->Indexer] != '\\' && _wtext[this->Indexer] != '//'; this->Indexer--) bytes--;
+			this->indeXer = strlen(option::validUserInputs); bytes += this->indeXer; wchar_t* wtext = new wchar_t[bytes + 1];
+			for (this->Indexer = 0; this->Indexer < this->indeXer; this->Indexer++)
+				_wtext[bytes - this->indeXer + this->Indexer] = option::validUserInputs[this->Indexer];
+			_wtext[bytes - this->indeXer + this->Indexer] = '\0';
+			for (this->Indexer = 0; _wtext[this->Indexer] != '\0'; this->Indexer++)
+				wtext[this->Indexer] = _wtext[this->Indexer];
+			wtext[this->Indexer] = '\0'; delete[] _wtext;
+			this->IsDbImage = this->decimalplaces > 2; 
 			DWORD dwAttrib = GetFileAttributes(wtext);
-			bool result = (dwAttrib != INVALID_FILE_ATTRIBUTES 
-				&&!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-			delete[] wtext; return result;
+			if ((dwAttrib != INVALID_FILE_ATTRIBUTES
+				&&!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY))){
+				delete[] option::validUserInputs; 
+				option::validUserInputs = new char[bytes + 1]; size_t outSize;
+				wcstombs_s(&outSize, option::validUserInputs, bytes + 1, wtext, bytes + 1);
+				delete[] wtext;
+				return true;
+			}
+			else{
+				delete[] wtext;
+				return false;
+			}
+
 		}	
 	}
 	return false;

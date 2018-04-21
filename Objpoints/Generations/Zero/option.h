@@ -11,9 +11,10 @@ namespace Tools{
 		~option();
 		virtual bool update();
 		option(int buffersize);
+		static const int max_size = 200;
 		static void removeKeysPressed();
 		static void clearConsoleScreen();
-		static const int alphanumeric = 63;
+		static const int alphanumeric = 67;
 		static bool keyPressed(int Menuindex);
 		virtual void outputIntroductions() = 0;
 		virtual void output(bool results = true) = 0;
@@ -39,6 +40,8 @@ namespace Tools{
 		static char* userInputs;
 		static char* validInputs;
 		static int validCharIndex;
+		static const char* escapes;
+		static const char* alphabet;
 		static const char* lowercase;
 		static const char* uppercase;
 		static const int maxchars = 12;
