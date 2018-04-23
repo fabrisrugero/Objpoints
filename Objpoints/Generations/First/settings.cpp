@@ -33,8 +33,8 @@ bool Tools::settings::update(){
 bool Tools::settings::setPath(int index, char* output){
 	return false;
 }
-bool Tools::settings::setPath(int index){
-	return false;
+int Tools::settings::setPath(int index){
+	return 0;
 }
 bool Tools::settings::IsValidInput(){
 	this->Indexer = 0;

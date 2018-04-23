@@ -7,7 +7,7 @@ namespace Tools{
 		void output(bool results = true);
 		static const int MAX_COLUMNS = 7;
 		static const int MAX_CHARS = 50;
-		static bool setPath(int index);// set the static "validuserinputs" to valid database
+		static int setPath(int index);// set the static "validuserinputs" to valid database
 		void outputIntroductions();
 		static int maxGroupIndex;
 		static char* defaultdir;

@@ -53,10 +53,11 @@ Tools::query::query(const char* directory, int query_size, int max_chars, int ma
 	for (this->indexer = 0; this->indexer < this->dir_size; this->indexer++)
 		this->directory[this->indexer] = directory[this->indexer];
 };
+
 void Tools::query::connectTo(char* sql, const char* database){
 	this->clearbuffer();
-	this->concantenate(this->directory, this->dir_size, &database[0], 0);
-	this->concantenate(&database[0], strlen(database), ".db", 3);
+	this->concantenate(this->directory, this->dir_size, database, 0);
+	if (database != nullptr) this->concantenate(database, strlen(database), ".db", 3);
 	for (this->indexer = 0; this->indexer < this->query_size; this->indexer++)
 		sql[this->indexer] = this->querychararcters[this->indexer];
 };

@@ -50,7 +50,7 @@ void Tools::open::output(bool results){
 						std::cout << std::setw(20) << this->results; }
 					std::cout << "|\n"; break;
 				}
-				this->table->select(Tools::content::next);
+				query = this->table->select(Tools::content::next);
 			}
 		}
 	}
@@ -98,10 +98,14 @@ Tools::open::open(Menu Index) : option(settings::MAX_CHARS){
 }
 bool Tools::open::opendb(){
 	if (!this->IsDbImage){
-		if (this->hasErrmsg = !this->table->hasErrors(this->errmsg) && !this->table->connectedTo(option::validUserInputs)){
-			if (this->table != nullptr) delete this->table; this->table = new Tools::dbTable(option::validUserInputs);
+		if (this->table != nullptr  && !this->table->connectedTo(option::validUserInputs) && (this->hasErrmsg = !this->table->hasErrors(this->errmsg))){
+			delete this->table; this->table = new Tools::dbTable(option::validUserInputs);
 			if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) return false; }
+		else if (this->table != nullptr) delete this->table;
+		this->table = new Tools::dbTable(option::validUserInputs, this->Indexer);
+		if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) return false;
 		query* query = this->table->select(Tools::content::distinct);
+		if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) return false;
 		if (settings::groups != nullptr) delete[] settings::groups;
 		settings::grps = query->dimensions(true);
 		if (settings::grps == 0) settings::groups = nullptr;
@@ -120,15 +124,15 @@ bool Tools::open::opendb(){
 bool Tools::open::update(){
 	std::cout << "Enter image/database: "; option::removeKeysPressed(); 
 	option::processKeysPressed(option::alphanumeric);
-	if (this->IsValidInput())
-		return this->opendb();
+	if (this->IsValidInput() && this->opendb())
+		return true;
 	else {
-		if (settings::setPath(settings::defaultdb) && this->IsValidInput())
-			return this->opendb();
+		if (this->Indexer = settings::setPath(settings::defaultdb) > 0 && this->IsValidInput() && this->opendb())
+			return true;
 		else
-			for (this->Indexer = 0; this->Indexer < settings::dbs; this->Indexer++)
-				if (settings::setPath(this->Indexer) && this->IsValidInput())
-					return this->opendb();
+			for (this->InDexer = 0; this->InDexer < settings::dbs; this->InDexer++)
+				if (this->Indexer = settings::setPath(this->InDexer) > 0 && this->IsValidInput() && this->opendb())
+					return true;
 	}
 	if (this->hasErrmsg) std::cout << this->errmsg;
 	else std::cout << " Error: unable to open a file including any defualts set in settings";

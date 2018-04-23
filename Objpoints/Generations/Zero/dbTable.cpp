@@ -16,16 +16,16 @@ bool Tools::dbTable::select(int content){
 		this->where(objectz, settings::groups[this->groupIndex]);
 		if (settings::maxGroupIndex == 0) return false;
 		else return true;
-	case content::next:
+	case next:
 		if (this->groupIndex < settings::maxGroupIndex) this->groupIndex++;
 		else if (settings::maxGroupIndex > 0) this->groupIndex = 0;
 		this->where(objectz, settings::groups[this->groupIndex]);
 		if (settings::maxGroupIndex == 0) return false;
 		else return true;
 	case distinct:
-		query->add("DISTINCT", query->TYPE, true);
-		query->add(this->cols[objectz], query->TYPE);
-		query->selectFromTable(this->querystatement, this->table, this->lenght);
+		this->query->add("DISTINCT", query->TYPE, true);
+		this->query->add(this->cols[objectz], query->TYPE);
+		this->query->selectFromTable(this->querystatement, this->table, this->lenght);
 		for (this->indexer = 0; querystatement[this->indexer] != '\0'; this->indexer++)
 			if (querystatement[this->indexer] == ',') break; querystatement[this->indexer] = ' ';
 		return true;
@@ -33,8 +33,8 @@ bool Tools::dbTable::select(int content){
 }
 bool Tools::dbTable::hasErrors(char* arr){
 	if (this->errors == nullptr) return false; if (arr == nullptr) return true;
-	for (this->indexer = 0; errors[this->indexer] != '\0'; this->indexer++)
-		arr[this->indexer] = errors[this->indexer];
+	for (this->indexer = 0; this->errors[this->indexer] != '\0'; this->indexer++)
+		arr[this->indexer] = this->errors[this->indexer];
 	if (this->indexer < settings::QUERY_SIZE) arr[this->indexer] = '\0';
 	return true;
 };
@@ -42,16 +42,17 @@ bool Tools::dbTable::connectedTo(char* db){
 	return this->IsEqual(db, this->database);
 };
 Tools::dbTable::dbTable(char* db, int end, int str){
-	this->database = new char[this->indexer = end - str];
-	for (this->Indexer = 0; this->Indexer < this->indexer; this->Indexer++) this->database[this->Indexer] = db[this->Indexer];
-	this->query = new Tools::query(Tools::settings::defaultdir, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
+	if (end -= str > 0) this->database = new char[end]; else this->database = nullptr;
+	for (this->Indexer = 0; this->Indexer < end; this->Indexer++) this->database[this->Indexer] = db[this->Indexer]; this->database[this->Indexer] = '\0';
+	if (this->database == nullptr) this->query = new Tools::query(Tools::settings::defaultdir, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
+	else this->query = new Tools::query(this->database, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
 	this->querystatement = new char[settings::QUERY_SIZE];
 	this->sqlcommand = this->querystatement;
 	this->table = "objectz_points";
 	this->errors = nullptr;
 	this->columns = 7;
 	this->initcolumns();
-	query->connectTo(querystatement, db);
+	query->connectTo(querystatement, nullptr);
 	if (sqlite3_open(sqlcommand, &this->db)) { 
 		this->handlErrors();
 		sqlite3_close(this->db);
@@ -104,9 +105,10 @@ Tools::query* Tools::dbTable::handlErrors(){
 	for (this->indexer = 0; this->indexer < settings::QUERY_SIZE; this->indexer++)
 		if (this->errmsg[this->indexer] == '\0') break;
 	if (this->errors != nullptr) delete[] this->errors; 
-	this->errors = new char[this->indexer];
+	this->errors = new char[this->indexer + 1];
 	for (this->Indexer = 0; this->Indexer < this->indexer; this->Indexer++)
 		this->errors[this->Indexer] = this->errmsg[this->Indexer];
+	this->errors[this->Indexer] = '\0';
 	return nullptr;
 };
 void Tools::dbTable::initcolumns(){
