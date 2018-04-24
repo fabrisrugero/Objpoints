@@ -13,6 +13,7 @@ namespace Tools{
 		char colsoutput[500];
 		Tools::dbTable* table;
 		static const char* dbs;
+		const int setwidth = 10;
 		static const char* pngs;
 		static const char* jpgs;
 		static const char* jpegs;

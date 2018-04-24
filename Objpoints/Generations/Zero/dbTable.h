@@ -18,20 +18,21 @@ namespace Tools{
 		const char* table;
 		void initcolumns();
 		const char* errmsg;
+		int handlErrors();
 		Tools::query* query;
 		char* querystatement;
 		const int lenght = 14;
 		const char* sqlcommand;
-		bool select(int content);
-		Tools::query* handlErrors();
-		int IsEqual(const char *a, const char *b);
+		void select(int content);
+		bool IsEqual(const char *a, const char *b);
 	public:
 		~dbTable();
 		bool connectedTo(char* db);
+		int select(content content);
 		bool hasErrors(char* arr = nullptr);
-		Tools::query* select(content content);
 		int initcolumns(char* output, int setwidth);
 		dbTable(char* db, int end = 0, int str = 0);
+		void select(char* content, int COL, int row);
 		void where(Tools::columns column, const char* value);
 	};
 }

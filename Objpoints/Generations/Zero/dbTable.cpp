@@ -1,34 +1,32 @@
 #include "dbTable.h"
 #include "../First/settings.h"
-bool Tools::dbTable::select(int content){
+void Tools::dbTable::select(int content){
 	switch (content){
 	default: 
-		return false;
+		break;
 	case custom: 
-		return false;
+		break;
 	case group:
 		this->groupIndex = 0;
 		this->where(objectz, settings::groups[this->groupIndex]);
-		return true;
+		break;
 	case previous:
 		if (this->groupIndex > 0) this->groupIndex--;
 		else this->groupIndex = settings::maxGroupIndex;
 		this->where(objectz, settings::groups[this->groupIndex]);
-		if (settings::maxGroupIndex == 0) return false;
-		else return true;
+		break;
 	case next:
 		if (this->groupIndex < settings::maxGroupIndex) this->groupIndex++;
 		else if (settings::maxGroupIndex > 0) this->groupIndex = 0;
 		this->where(objectz, settings::groups[this->groupIndex]);
-		if (settings::maxGroupIndex == 0) return false;
-		else return true;
+		break;
 	case distinct:
 		this->query->add("DISTINCT", query->TYPE, true);
 		this->query->add(this->cols[objectz], query->TYPE);
 		this->query->selectFromTable(this->querystatement, this->table, this->lenght);
 		for (this->indexer = 0; querystatement[this->indexer] != '\0'; this->indexer++)
 			if (querystatement[this->indexer] == ',') break; querystatement[this->indexer] = ' ';
-		return true;
+		break;
 	}
 }
 bool Tools::dbTable::hasErrors(char* arr){
@@ -58,11 +56,15 @@ Tools::dbTable::dbTable(char* db, int end, int str){
 		sqlite3_close(this->db);
 	}
 };
-Tools::query* Tools::dbTable::select(content content){
-	if (!this->select(static_cast<int>(content))) return nullptr; char **results = nullptr; int rows, columns;
+void Tools::dbTable::select(char* content, int COL, int row){
+	this->query->readcell(content, query->cellposition(COL, row + 1));
+	this->query->clearbuffer(content, query->getlenght(COL, row + 1), settings::MAX_CHARS);
+}
+int Tools::dbTable::select(content content){
+	this->select(static_cast<int>(content)); char **results = nullptr; int rows, columns;
 	if (sqlite3_get_table(this->db, this->sqlcommand, &results, &rows, &columns, nullptr)) return this->handlErrors();
 	else this->query->copyrecords(results, rows, columns);
-	sqlite3_free_table(results); return this->query;
+	sqlite3_free_table(results); return rows;
 };
 void Tools::dbTable::where(Tools::columns column, const char* value){
 	this->query->add(value, query->VALUE);
@@ -71,36 +73,34 @@ void Tools::dbTable::where(Tools::columns column, const char* value){
 	this->query->selectFromTable(this->querystatement, this->table, this->lenght, this->query->COL_ONE);
 };
 int Tools::dbTable::initcolumns(char* output, int setwidth){
-	if (this->indeXer > 0) return this->columns; this->indeXer = -1; setwidth *= 2;
-	for (this->Indexer = 0; this->Indexer < this->columns; this->Indexer++)
-		for (this->indexer = 0; this->indexer < setwidth; this->indexer++)
-			output[this->indeXer += 1] = '-';
-	output[this->indeXer += 1] = '\n'; setwidth /= 2;
+	if (this->indeXer > 0) return this->columns; this->indeXer = -1;
+	for (this->indexer = 0; this->indexer < this->columns*setwidth + 8; this->indexer++)
+		output[this->indeXer += 1] = '-';
+	output[this->indeXer += 1] = '\n'; int pixels = 0;
 	for (this->Indexer = 0; this->Indexer < this->columns; this->Indexer++){
-		output[this->indeXer += 1] = '|';
+		output[this->indeXer += 1] = '|';  pixels = this->indeXer;
 		this->indexer = static_cast<int>(std::floor((setwidth - this->widths[this->Indexer]) / 2));
 		for (this->inDexer = 0; this->inDexer < this->indexer; this->inDexer++)
 			output[this->indeXer += 1] = ' ';
-		for (this->inDexer; this->inDexer < this->widths[this->Indexer]; this->inDexer++)
-			output[this->indeXer += 1] = this->cols[this->Indexer][this->inDexer - this->indexer];
+		for (this->inDexer = 0; this->inDexer < this->widths[this->Indexer]; this->inDexer++)
+			output[this->indeXer += 1] = this->cols[this->Indexer][this->inDexer];
 		for (this->inDexer = 0; this->inDexer < this->indexer; this->inDexer++)
 			output[this->indeXer += 1] = ' ';
+		if (this->indeXer - pixels < setwidth) output[this->indeXer += 1] = ' ';
 	}
-	output[this->indeXer += 1] = '|';
-	output[this->indeXer += 1] = '\n'; setwidth *= 2;
-	for (this->Indexer = 0; this->Indexer < this->columns; this->Indexer++)
-		for (this->indexer = 0; this->indexer < setwidth; this->indexer++)
-			output[this->indeXer += 1] = '-';
+	output[this->indeXer += 1] = '|'; output[this->indeXer += 1] = '\n';
+	for (this->indexer = 0; this->indexer < this->columns*setwidth + 8; this->indexer++)
+		output[this->indeXer += 1] = '-';
 	output[this->indeXer += 1] = '\n';
 	return this->columns;
 };
-int Tools::dbTable::IsEqual(const char *a, const char *b){
+bool Tools::dbTable::IsEqual(const char *a, const char *b){
 	for (int i = 0; a[i] != '\0'; i++)
 		if (a[i] != b[i])
-			return 0;
-	return 1;
+			return false;
+	return true;
 }
-Tools::query* Tools::dbTable::handlErrors(){
+int Tools::dbTable::handlErrors(){
 	this->errmsg = sqlite3_errmsg(this->db);
 	for (this->indexer = 0; this->indexer < settings::QUERY_SIZE; this->indexer++)
 		if (this->errmsg[this->indexer] == '\0') break;
@@ -109,7 +109,7 @@ Tools::query* Tools::dbTable::handlErrors(){
 	for (this->Indexer = 0; this->Indexer < this->indexer; this->Indexer++)
 		this->errors[this->Indexer] = this->errmsg[this->Indexer];
 	this->errors[this->Indexer] = '\0';
-	return nullptr;
+	return query->dimensions(true);
 };
 void Tools::dbTable::initcolumns(){
 	this->widths = new int[this->columns]();

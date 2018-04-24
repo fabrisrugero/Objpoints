@@ -15,7 +15,6 @@ Tools::query::~query(){
 	delete[] this->values_lenght;
 	delete[] this->querychararcters;
 };
-
 void Tools::query::clearbuffer(bool beforeBuild){
 	if (beforeBuild){
 		for (this->indexer = 0; this->indexer < this->query_size; this->indexer++)
@@ -53,7 +52,6 @@ Tools::query::query(const char* directory, int query_size, int max_chars, int ma
 	for (this->indexer = 0; this->indexer < this->dir_size; this->indexer++)
 		this->directory[this->indexer] = directory[this->indexer];
 };
-
 void Tools::query::connectTo(char* sql, const char* database){
 	this->clearbuffer();
 	this->concantenate(this->directory, this->dir_size, database, 0);
@@ -160,8 +158,8 @@ void Tools::query::selectFromTable(char* sql, const char *table, int lenght, int
 	if (column < 0) this->concantenate(table, lenght, ";", 1);
 	else{
 		this->concantenate(table, lenght, " WHERE ", 7);
-		this->concantenate(this->types[column], this->types_lenght[column], " = ", 3);
-		this->concantenate(this->values[column], this->values_lenght[column], ";", 1);
+		this->concantenate(this->types[column], this->types_lenght[column], " = '", 4);
+		this->concantenate(this->values[column], this->values_lenght[column], "';", 2);
 	}
 	for (this->indexer = 0; this->indexer < this->query_size; this->indexer++)
 		sql[this->indexer] = this->querychararcters[this->indexer];

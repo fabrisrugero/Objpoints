@@ -37,21 +37,29 @@ void Tools::open::output(bool results){
 		std::cout << this->index << ") open image/database" << std::endl;
 	else{
 		option::clearConsoleScreen();
-		if (this->hasErrmsg) std::cout << this->errmsg;
+		if (this->hasErrmsg){
+			std::cout << this->errmsg << "\npress " << this->index
+				<< " to try again or press enter to exit" << std::endl; return;}
 		else{	
-			int rows, index, columns = this->table->initcolumns(this->colsoutput, 20);
-			query* query = this->table->select(Tools::content::group);
-			while (query != nullptr){
-				rows = query->dimensions(true); std::cout << this->colsoutput;
+			int rows, columns = this->table->initcolumns(this->colsoutput, this->setwidth);
+			rows = this->table->select(Tools::content::group);
+			this->hasErrmsg = this->table->hasErrors(this->errmsg);
+			if (!this->hasErrmsg) std::cout << this->colsoutput;
+			else { std::cout << this->errmsg << "\npress " << this->index
+					<< " to try again or press enter to exit" << std::endl; return; }
+			for (this->InDexer = 0; this->InDexer < settings::grps; this->InDexer++){
 				for (this->Indexer = 0; this->Indexer < rows; this->Indexer++){
 					for (this->interation = 0; this->interation < columns; this->interation++){
-						index = query->cellposition(this->interation, this->Indexer);
-						std::cout << "|"; query->readcell(this->results, index);
-						std::cout << std::setw(20) << this->results; }
+						this->table->select(this->results, this->interation, 0);
+						std::cout << "|" << std::setw(this->setwidth) << this->results;}
 					std::cout << "|\n"; break;
 				}
-				query = this->table->select(Tools::content::next);
+				rows = this->table->select(Tools::content::next);
+				if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) break;
 			}
+			if (this->hasErrmsg){
+				std::cout << this->errmsg << "\npress " << this->index
+					<< " to try again or press enter to exit" << std::endl; return;}
 		}
 	}
 }
@@ -104,17 +112,14 @@ bool Tools::open::opendb(){
 		else if (this->table != nullptr) delete this->table;
 		this->table = new Tools::dbTable(option::validUserInputs, this->Indexer);
 		if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) return false;
-		query* query = this->table->select(Tools::content::distinct);
+		settings::grps = this->table->select(Tools::content::distinct);
 		if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) return false;
 		if (settings::groups != nullptr) delete[] settings::groups;
-		settings::grps = query->dimensions(true);
 		if (settings::grps == 0) settings::groups = nullptr;
 		else settings::groups = new char*[settings::grps];
-		for (this->Indexer = 0; this->Indexer < settings::grps; this->Indexer++){
-			settings::groups[this->Indexer] = new char[settings::MAX_CHARS];
-			query->readcell(settings::groups[this->Indexer], query->cellposition(query->COL_ONE, this->Indexer));
-			query->clearbuffer(settings::groups[this->Indexer], query->getlenght(query->COL_ONE, this->Indexer), settings::MAX_CHARS);
-		}
+		settings::maxGroupIndex = settings::grps - 1;
+		for (this->Indexer = 0; this->Indexer < settings::grps; this->Indexer++)
+			this->table->select(settings::groups[this->Indexer] = new char[settings::MAX_CHARS], query::COL_ONE, this->Indexer);
 		return true;
 	}
 	else{
