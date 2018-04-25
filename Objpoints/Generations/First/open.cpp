@@ -10,17 +10,17 @@ bool Tools::open::extMatcher(int start, int ext){
 	default: return false;
 	case 2:
 		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
-			if (validUserInputs[option::decimalIndex + this->Indexer + 1] != dbs[start + this->Indexer]) return false;
+			if (option::validUserInputs[option::decimalIndex + this->Indexer + 1] != dbs[start + this->Indexer]) return false;
 		return true;
 	case 3:
 		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
-			if (validUserInputs[option::decimalIndex + this->Indexer + 1] != pngs[start + this->Indexer]) break;
+			if (option::validUserInputs[option::decimalIndex + this->Indexer + 1] != pngs[start + this->Indexer]) break;
 		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
-			if (validUserInputs[option::decimalIndex + this->Indexer + 1] != jpgs[start + this->Indexer]) return false;
+			if (option::validUserInputs[option::decimalIndex + this->Indexer + 1] != jpgs[start + this->Indexer]) return false;
 		return true;
 	case 4:
 		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
-			if (validUserInputs[option::decimalIndex + this->Indexer + 1] != jpegs[start + this->Indexer]) return false;
+			if (option::validUserInputs[option::decimalIndex + this->Indexer + 1] != jpegs[start + this->Indexer]) return false;
 		return true;
 	}
 }
@@ -100,13 +100,16 @@ bool Tools::open::IsValidInput(){
 	return false;
 };
 Tools::open::open(Menu Index) : option(settings::MAX_CHARS){
+	this->window = nullptr;
 	this->colsoutput[500] = {};
+	this->validUserInputs = nullptr;
 	this->index = static_cast<int>(Index)+1;
 	this->errmsg = new char[settings::QUERY_SIZE];
 }
 bool Tools::open::opendb(){
 	if (!this->IsDbImage){
-		if (this->table != nullptr  && !this->table->connectedTo(option::validUserInputs) && (this->hasErrmsg = !this->table->hasErrors(this->errmsg))){
+		if (this->table != nullptr  && !this->table->connectedTo(option::validUserInputs) 
+			&& (this->hasErrmsg = !this->table->hasErrors(this->errmsg))){
 			delete this->table; this->table = new Tools::dbTable(option::validUserInputs);
 			if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) return false; }
 		else if (this->table != nullptr) delete this->table;
@@ -119,18 +122,27 @@ bool Tools::open::opendb(){
 		else settings::groups = new char*[settings::grps];
 		settings::maxGroupIndex = settings::grps - 1;
 		for (this->Indexer = 0; this->Indexer < settings::grps; this->Indexer++)
-			this->table->select(settings::groups[this->Indexer] = new char[settings::MAX_CHARS], query::COL_ONE, this->Indexer);
+			this->table->select(settings::groups[this->Indexer] 
+			= new char[settings::MAX_CHARS], query::COL_ONE, this->Indexer);
 		return true;
 	}
 	else{
-		sfmlMananger *manager = new sfmlMananger(800, 600, option::validUserInputs);
-		delete manager;
+		if (this->validUserInputs != nullptr) delete[] this->validUserInputs;
+		else this->validUserInputs = new char[this->Indexer + 1];
+		for (this->Indexer = 0; option::validUserInputs[this->Indexer] != '\0'; this->Indexer++)
+			this->validUserInputs[this->Indexer] = option::validUserInputs[this->Indexer];
+		this->validUserInputs[this->Indexer] = '\0';
+		this->thread = new std::thread{ [=](){
+			if (this->window == nullptr) this->window = new sfmlMananger(800, 600, this->validUserInputs);
+			else this->window->reconstruct(800, 600, this->validUserInputs);
+			this->window->loop();
+		} };
 		return true;
 	}
 }
 bool Tools::open::update(){
 	std::cout << "Enter image/database: "; option::removeKeysPressed(); 
-	settings::canvasVisible(false); option::processKeysPressed(option::alphanumeric);
+	option::processKeysPressed(option::alphanumeric);
 	if (this->IsValidInput() && this->opendb())
 		return true;
 	else {

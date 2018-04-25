@@ -1,6 +1,4 @@
 #include "settings.h"
-sf::RenderWindow* Tools::settings::canvas = new sf::RenderWindow();
-bool Tools::settings::canvasIsVisible = true;
 char* Tools::settings::defaultdir = nullptr;
 char** Tools::settings::databases = nullptr;
 char** Tools::settings::groups = nullptr;
@@ -50,15 +48,4 @@ bool Tools::settings::IsValidInput(){
 };
 Tools::settings::~settings(){
 
-}
-bool Tools::settings::IscanvasVisible(){
-	return settings::canvasIsVisible;
-}
-void Tools::settings::canvasVisible(bool show){
-	if (show && settings::canvasIsVisible) return;
-	else if (!show && !settings::canvasIsVisible) return;
-	else if (show && !settings::canvasIsVisible)
-		settings::canvas->setVisible(settings::canvasIsVisible = true);
-	else if (!show && settings::canvasIsVisible)
-		settings::canvas->setVisible(settings::canvasIsVisible = false);
 }

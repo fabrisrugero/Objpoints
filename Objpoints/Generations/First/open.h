@@ -1,6 +1,7 @@
 #pragma once
 #include "../Zero/sfmlManager.h"
 #include "../Zero/option.h"
+#include <thread>
 namespace Tools{
 	class open : public option{
 		int InDexer;
@@ -10,10 +11,14 @@ namespace Tools{
 		bool opendb();
 		bool IsDbImage;
 		bool hasErrmsg;
+		void SFMLlooper();
 		int decimalplaces;
 		bool IsValidInput();
+		std::thread* thread;
+		sfmlMananger* window;
 		char colsoutput[500];
 		Tools::dbTable* table;
+		char* validUserInputs;
 		static const char* dbs;
 		const int setwidth = 10;
 		static const char* pngs;
