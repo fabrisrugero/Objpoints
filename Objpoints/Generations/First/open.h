@@ -1,9 +1,11 @@
 #pragma once
+#include "../Zero/sfmlManager.h"
 #include "../Zero/option.h"
 namespace Tools{
 	class open : public option{
 		int InDexer;
 		int indeXer;
+		void abort();
 		char* errmsg;
 		bool opendb();
 		bool IsDbImage;

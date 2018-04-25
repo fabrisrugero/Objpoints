@@ -32,34 +32,34 @@ void Tools::open::outputIntroductions(){
 	std::cout << "2.Portable Network Graphics ( PNG )\n";
 	std::cout << "3.SQLite Database file ( db )\n\n";
 };
+void Tools::open::abort(){
+	std::cout << this->errmsg << "\npress " << this->index
+		<< " to try again or press enter to exit" << std::endl;
+}
 void Tools::open::output(bool results){
 	if (!results)
 		std::cout << this->index << ") open image/database" << std::endl;
 	else{
 		option::clearConsoleScreen();
-		if (this->hasErrmsg){
-			std::cout << this->errmsg << "\npress " << this->index
-				<< " to try again or press enter to exit" << std::endl; return;}
-		else{	
-			int rows, columns = this->table->initcolumns(this->colsoutput, this->setwidth);
-			rows = this->table->select(Tools::content::group);
+		if (this->hasErrmsg) return abort();
+		else if (!this->IsDbImage){	
+			int columns = this->table->initcolumns(this->colsoutput, this->setwidth);
+			int rows = this->table->select(Tools::content::group);
 			this->hasErrmsg = this->table->hasErrors(this->errmsg);
-			if (!this->hasErrmsg) std::cout << this->colsoutput;
-			else { std::cout << this->errmsg << "\npress " << this->index
-					<< " to try again or press enter to exit" << std::endl; return; }
+			if (!this->hasErrmsg) std::cout << this->colsoutput; else return abort();
 			for (this->InDexer = 0; this->InDexer < settings::grps; this->InDexer++){
 				for (this->Indexer = 0; this->Indexer < rows; this->Indexer++){
 					for (this->interation = 0; this->interation < columns; this->interation++){
 						this->table->select(this->results, this->interation, 0);
 						std::cout << "|" << std::setw(this->setwidth) << this->results;}
-					std::cout << "|\n"; break;
-				}
+					std::cout << "|\n"; break;}
 				rows = this->table->select(Tools::content::next);
-				if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) break;
-			}
-			if (this->hasErrmsg){
-				std::cout << this->errmsg << "\npress " << this->index
-					<< " to try again or press enter to exit" << std::endl; return;}
+				if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) break;}
+			if (this->hasErrmsg)return abort();
+		}
+		else{
+			std::cout << "SFML successfully opened '" << option::validUserInputs << "'"
+				<< "\npress " << this->index << " to open a new image or database or press enter to exit" << std::endl;	
 		}
 	}
 }
@@ -123,12 +123,14 @@ bool Tools::open::opendb(){
 		return true;
 	}
 	else{
-		return false;
+		sfmlMananger *manager = new sfmlMananger(800, 600, option::validUserInputs);
+		delete manager;
+		return true;
 	}
 }
 bool Tools::open::update(){
 	std::cout << "Enter image/database: "; option::removeKeysPressed(); 
-	option::processKeysPressed(option::alphanumeric);
+	settings::canvasVisible(false); option::processKeysPressed(option::alphanumeric);
 	if (this->IsValidInput() && this->opendb())
 		return true;
 	else {
