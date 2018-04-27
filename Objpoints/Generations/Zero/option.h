@@ -11,6 +11,8 @@ namespace Tools{
 		~option();
 		virtual bool update();
 		option(int buffersize);
+		virtual void deconstruct() = 0;
+		virtual void reconstruct() = 0;
 		static const int max_size = 200;
 		static void removeKeysPressed();
 		static void clearConsoleScreen();

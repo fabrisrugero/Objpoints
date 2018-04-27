@@ -7,6 +7,8 @@ namespace Tools{
 		void output(bool results = true);
 		void outputIntroductions();
 		history(Menu index);
+		void deconstruct();
+		void reconstruct();
 		bool update();
 		~history();
 	};

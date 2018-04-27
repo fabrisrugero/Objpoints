@@ -15,6 +15,10 @@ void Tools::history::output(bool results){
 		option::clearConsoleScreen();
 	}
 }
+void Tools::history::deconstruct(){
+}
+void Tools::history::reconstruct(){
+}
 Tools::history::history(Menu Index) : option(settings::MAX_CHARS){
 	this->index = static_cast<int>(Index)+1;
 }

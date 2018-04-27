@@ -20,6 +20,10 @@ void Tools::points::output(bool results){
 Tools::points::points(Menu Index) : option(settings::MAX_CHARS){
 	this->index = static_cast<int>(Index)+1;
 }
+void Tools::points::deconstruct(){
+}
+void Tools::points::reconstruct(){
+}
 bool Tools::points::update(){
 	std::cout << "Enter command/query: ";
 	option::removeKeysPressed(); option::processKeysPressed();

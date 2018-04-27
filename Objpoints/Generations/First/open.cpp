@@ -32,17 +32,13 @@ void Tools::open::outputIntroductions(){
 	std::cout << "2.Portable Network Graphics ( PNG )\n";
 	std::cout << "3.SQLite Database file ( db )\n\n";
 };
-void Tools::open::abort(){
-	std::cout << this->errmsg << "\npress " << this->index
-		<< " to try again or press enter to exit" << std::endl;
-}
 void Tools::open::output(bool results){
 	if (!results)
 		std::cout << this->index << ") open image/database" << std::endl;
 	else{
 		option::clearConsoleScreen();
 		if (this->hasErrmsg) return abort();
-		else if (!this->IsDbImage){	
+		else if (!this->IsDbImage){
 			int columns = this->table->initcolumns(this->colsoutput, this->setwidth);
 			int rows = this->table->select(Tools::content::group);
 			this->hasErrmsg = this->table->hasErrors(this->errmsg);
@@ -57,9 +53,13 @@ void Tools::open::output(bool results){
 				if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) break;}
 			if (this->hasErrmsg)return abort();
 		}
+		else if (this->threadIsBusy)
+			std::cout << "close the Image window first, Once Image window closed '"
+			<< "\npress " << this->index << " to try again or enter to exit to main menu" << std::endl;
 		else{
-			std::cout << "SFML successfully opened '" << option::validUserInputs << "'"
-				<< "\npress " << this->index << " to open a new image or database or press enter to exit" << std::endl;	
+			this->threadIsBusy = true;
+			std::cout << "opened '" << option::validUserInputs << "'"
+				<< "\npress " << this->index << " to open a new image or database or press enter to exit" << std::endl;
 		}
 	}
 }
@@ -99,8 +99,29 @@ bool Tools::open::IsValidInput(){
 	}
 	return false;
 };
+void Tools::open::deconstruct(){
+	if (!this->threadIsBusy){
+		if (this->thread != nullptr) {
+			this->thread->join();
+			delete this->thread;
+			this->thread = nullptr;
+		}
+		if (this->validUserInputs != nullptr){
+			delete[] this->validUserInputs;
+			this->validUserInputs = nullptr;
+		}
+	}
+}
+void Tools::open::reconstruct(){
+	this->Indexer = 0;
+	this->InDexer = 0;
+	this->indeXer = 0;
+	this->deconstruct();
+	this->decimalplaces = 0;
+}
 Tools::open::open(Menu Index) : option(settings::MAX_CHARS){
 	this->window = nullptr;
+	this->threadIsBusy = false;
 	this->colsoutput[500] = {};
 	this->validUserInputs = nullptr;
 	this->index = static_cast<int>(Index)+1;
@@ -108,8 +129,9 @@ Tools::open::open(Menu Index) : option(settings::MAX_CHARS){
 }
 bool Tools::open::opendb(){
 	if (!this->IsDbImage){
-		if (this->table != nullptr  && !this->table->connectedTo(option::validUserInputs) 
-			&& (this->hasErrmsg = !this->table->hasErrors(this->errmsg))){
+		if (this->table != nullptr  && (this->conected = this->table->connectedTo(option::validUserInputs))
+			&& !(this->hasErrmsg = this->table->hasErrors(this->errmsg))) return true;
+		else if (this->table != nullptr  && (!this->conected || this->hasErrmsg)){
 			delete this->table; this->table = new Tools::dbTable(option::validUserInputs);
 			if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) return false; }
 		else if (this->table != nullptr) delete this->table;
@@ -127,15 +149,17 @@ bool Tools::open::opendb(){
 		return true;
 	}
 	else{
-		if (this->validUserInputs != nullptr) delete[] this->validUserInputs;
-		else this->validUserInputs = new char[this->Indexer + 1];
+		if (this->threadIsBusy) return true;
+		this->validUserInputs = new char[this->Indexer + 1];
 		for (this->Indexer = 0; option::validUserInputs[this->Indexer] != '\0'; this->Indexer++)
 			this->validUserInputs[this->Indexer] = option::validUserInputs[this->Indexer];
-		this->validUserInputs[this->Indexer] = '\0';
+		this->validUserInputs[this->Indexer] = '\0'; 
 		this->thread = new std::thread{ [=](){
-			if (this->window == nullptr) this->window = new sfmlMananger(800, 600, this->validUserInputs);
-			else this->window->reconstruct(800, 600, this->validUserInputs);
-			this->window->loop();
+			this->window = new sfmlMananger(800, 600, this->validUserInputs);
+			this->window->drawing();
+			delete this->window;
+			this->window = nullptr;
+			this->threadIsBusy = false;
 		} };
 		return true;
 	}
@@ -145,19 +169,22 @@ bool Tools::open::update(){
 	option::processKeysPressed(option::alphanumeric);
 	if (this->IsValidInput() && this->opendb())
 		return true;
-	else {
-		if (this->Indexer = settings::setPath(settings::defaultdb) > 0 && this->IsValidInput() && this->opendb())
-			return true;
-		else
-			for (this->InDexer = 0; this->InDexer < settings::dbs; this->InDexer++)
-				if (this->Indexer = settings::setPath(this->InDexer) > 0 && this->IsValidInput() && this->opendb())
-					return true;
-	}
+	if (settings::setPath(settings::defaultdb) > 0 && this->IsValidInput() && this->opendb())
+		return true;
+	else
+		for (this->InDexer = 0; this->InDexer < settings::dbs; this->InDexer++)
+			if (settings::setPath(this->InDexer) > 0 && this->IsValidInput() && this->opendb())
+				return true;
 	if (this->hasErrmsg) std::cout << this->errmsg;
 	else std::cout << " Error: unable to open a file including any defualts set in settings";
 	std::cout << "\npress " << this->index << " to try again or press enter to exit" << std::endl;
 	return false;
 }
+void Tools::open::abort(){
+	std::cout << this->errmsg << "\npress " << this->index
+		<< " to try again or press enter to exit" << std::endl;
+}
 Tools::open::~open(){
-
+	if (this->validUserInputs != nullptr) 
+		delete[] this->validUserInputs;
 }

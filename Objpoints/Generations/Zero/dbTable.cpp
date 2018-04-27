@@ -123,5 +123,9 @@ void Tools::dbTable::initcolumns(){
 	this->widths[id] = static_cast<int>(strlen(this->cols[id] = "id"));
 };
 Tools::dbTable::~dbTable(){
-
+	delete this->query;
+	sqlite3_close(this->db);
+	delete[] this->querystatement;
+	if (this->database != nullptr)
+		delete[] this->database;
 }

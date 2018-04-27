@@ -24,7 +24,7 @@ namespace Tools{
 		sfmlMananger(int width, int height, char* image);
 		~sfmlMananger();
 		sfmlMananger();
-		void loop();
+		void drawing();
 	};
 }
 

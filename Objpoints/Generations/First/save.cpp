@@ -15,6 +15,10 @@ void Tools::save::output(bool results){
 		option::clearConsoleScreen();
 	}
 }
+void Tools::save::deconstruct(){
+}
+void Tools::save::reconstruct(){
+}
 Tools::save::save(Menu Index) : option(settings::MAX_CHARS){
 	this->index = static_cast<int>(Index)+1;
 }

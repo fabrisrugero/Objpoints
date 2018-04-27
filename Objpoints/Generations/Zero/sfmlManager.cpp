@@ -46,14 +46,15 @@ bool Tools::sfmlMananger::draw(){
 	this->canvas->draw(this->cartoon);
 	return this->success;
 };
-void Tools::sfmlMananger::loop(){
+void Tools::sfmlMananger::drawing(){
 	if (!this->IsVisible){
 		this->canvas->create(*this->mode, this->filename);
 		this->canvas->setFramerateLimit(60);}
 	while (this->canvas->isOpen()){
 		while (this->canvas->pollEvent(*this->event))
-			if (this->event->type == sf::Event::Closed)
-				this->canvas->close();
+			if (this->event->type == sf::Event::Closed){
+			this->canvas->setActive(false);
+			this->canvas->close();}	
 		this->canvas->clear();
 		this->update();
 		this->draw();

@@ -11,8 +11,8 @@ namespace Tools{
 		bool opendb();
 		bool IsDbImage;
 		bool hasErrmsg;
-		void SFMLlooper();
 		int decimalplaces;
+		bool threadIsBusy;
 		bool IsValidInput();
 		std::thread* thread;
 		sfmlMananger* window;
@@ -28,7 +28,10 @@ namespace Tools{
 	public:
 		void output(bool results = true);
 		void outputIntroductions();
+		void deconstruct();
+		void reconstruct();
 		open(Menu index);
+		bool conected;
 		bool update();
 		~open();
 	};

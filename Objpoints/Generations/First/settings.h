@@ -15,6 +15,8 @@ namespace Tools{
 		static char** groups;
 		static int defaultdb;
 		settings(Menu index);
+		void deconstruct();
+		void reconstruct();
 		static int grps;
 		static int dbs;
 		bool update();

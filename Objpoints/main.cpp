@@ -28,13 +28,14 @@ int main(){
 		for (indexer = 0; indexer < Menu::Max; indexer++)
 			if (option::keyPressed(indexer)) {
 			options[indexer]->outputIntroductions();
+			options[indexer]->reconstruct();
 			if (options[indexer]->update())
 				options[indexer]->output();
+			options[indexer]->deconstruct();
 			option::removeKeysPressed();
 			option::processKeysPressed();
-			if (option::keyPressed(indexer))
-				indexer--;
-			else break;
+			if (!option::keyPressed(indexer)) break;
+			else indexer--;
 			}
 		success = indexer < Menu::Max;
 	} while (!option::keyPressed('X', 'x'));
