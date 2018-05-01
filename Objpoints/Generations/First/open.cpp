@@ -169,7 +169,7 @@ bool Tools::open::update(){
 	option::processKeysPressed(option::alphanumeric);
 	if (this->IsValidInput() && this->opendb())
 		return true;
-	if (settings::setPath(settings::defaultdb) > 0 && this->IsValidInput() && this->opendb())
+	if (settings::setPath(settings::defaultPaths) > 0 && this->IsValidInput() && this->opendb())
 		return true;
 	else
 		for (this->InDexer = 0; this->InDexer < settings::Paths; this->InDexer++)

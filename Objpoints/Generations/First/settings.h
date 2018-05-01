@@ -12,8 +12,8 @@ namespace Tools{
 		void outputIntroductions();
 		static int maxGroupIndex;
 		static char* defaultPath;
+		static int defaultPaths;
 		static char** groups;
-		static int defaultdb;
 		settings(Menu index);
 		void deconstruct();
 		void reconstruct();
@@ -25,6 +25,7 @@ namespace Tools{
 		char* lines;
 		int indexer;
 		char** fullPaths;
+		int* pathLenghts;
 		bool IsValidInput();
 		std::ifstream* file;
 		static const int MAX_PATHS = 20;
