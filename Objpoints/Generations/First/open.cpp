@@ -172,7 +172,7 @@ bool Tools::open::update(){
 	if (settings::setPath(settings::defaultdb) > 0 && this->IsValidInput() && this->opendb())
 		return true;
 	else
-		for (this->InDexer = 0; this->InDexer < settings::dbs; this->InDexer++)
+		for (this->InDexer = 0; this->InDexer < settings::Paths; this->InDexer++)
 			if (settings::setPath(this->InDexer) > 0 && this->IsValidInput() && this->opendb())
 				return true;
 	if (this->hasErrmsg) std::cout << this->errmsg;

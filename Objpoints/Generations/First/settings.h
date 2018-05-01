@@ -1,5 +1,6 @@
 #pragma once
 #include "../Zero/option.h"
+#include <fstream>
 namespace Tools{
 	struct settings : public option{
 		static bool setPath(int index, char* output);// set the output to valid database
@@ -10,18 +11,22 @@ namespace Tools{
 		static int setPath(int index);// set the static "validuserinputs" to valid database
 		void outputIntroductions();
 		static int maxGroupIndex;
-		static char* defaultdir;
-		static char** databases;
+		static char* defaultPath;
 		static char** groups;
 		static int defaultdb;
 		settings(Menu index);
 		void deconstruct();
 		void reconstruct();
+		static int Paths;
 		static int grps;
-		static int dbs;
 		bool update();
 		~settings();
 	private:
+		char* lines;
+		int indexer;
+		char** fullPaths;
 		bool IsValidInput();
+		std::ifstream* file;
+		static const int MAX_PATHS = 20;
 	};
 }

@@ -15,7 +15,7 @@ bool Tools::option::hasDecimal = false;
 char* Tools::option::userInputs = nullptr;
 char* Tools::option::validInputs = nullptr;
 char* Tools::option::validUserInputs = nullptr;
-const char* Tools::option::escapes = "_@-\\//";
+const char* Tools::option::escapes = "_@-\\//:";
 const char* Tools::option::alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 Tools::option::option(int buffersize){
 	this->buffersize = buffersize;
@@ -26,7 +26,7 @@ Tools::option::option(int buffersize){
 		option::validInputs[this->interation] = '0' + this->interation;
 	for (this->interation = 0; this->interation < 52; this->interation++)
 		option::validInputs[this->interation + 10] = option::alphabet[this->interation];
-	for (this->interation = 0; this->interation < 5; this->interation++)
+	for (this->interation = 0; this->interation < 6; this->interation++)
 		option::validInputs[this->interation + 62] = option::escapes[this->interation];
 	option::validInputs[this->interation + 62] = '\0';
 }

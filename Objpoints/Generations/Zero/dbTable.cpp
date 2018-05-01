@@ -42,7 +42,7 @@ bool Tools::dbTable::connectedTo(char* db){
 Tools::dbTable::dbTable(char* db, int end, int str){
 	if (end -= str > 0) this->database = new char[end]; else this->database = nullptr;
 	for (this->Indexer = 0; this->Indexer < end; this->Indexer++) this->database[this->Indexer] = db[this->Indexer]; this->database[this->Indexer] = '\0';
-	if (this->database == nullptr) this->query = new Tools::query(Tools::settings::defaultdir, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
+	if (this->database == nullptr) this->query = new Tools::query(Tools::settings::defaultPath, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
 	else this->query = new Tools::query(this->database, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
 	this->querystatement = new char[settings::QUERY_SIZE];
 	this->sqlcommand = this->querystatement;
