@@ -43,7 +43,7 @@ bool Tools::option::IsValidInput(){
 	else if (hasDecimal && validCharIndex >= 2) return true;
 	else return false;
 }
-void Tools::option::processKeysPressed(int digits){
+int Tools::option::processKeysPressed(int maxchars){
 	validUserInputs = new char[maxchars + 1];
 	userInputs = new char[maxchars];
 	while (std::cin.get(_keyPressed)){
@@ -52,11 +52,9 @@ void Tools::option::processKeysPressed(int digits){
 		else 
 			break;
 	}
-	for (indexer = charIndex; indexer < maxchars; indexer++)
-		userInputs[indexer] = '\0';
-	inputs = charIndex;
+	userInputs[charIndex] = '\0'; inputs = charIndex;
 	while (charIndex){
-		for (indexer = 0; indexer < digits; indexer++){
+		for (indexer = 0; userInputs[inputs - charIndex] != '\0'; indexer++){
 			if (userInputs[inputs - charIndex] == validInputs[indexer]){
 				validUserInputs[validCharIndex++] = userInputs[inputs - charIndex];
 				 break;
@@ -71,6 +69,7 @@ void Tools::option::processKeysPressed(int digits){
 		charIndex--;
 		if (charIndex == 0) validUserInputs[validCharIndex] = '\0';
 	}
+	return validCharIndex;
 };
 void Tools::option::clearConsoleScreen(){
 	COORD topLeft = { 0, 0 };

@@ -24,10 +24,11 @@ namespace Tools{
 	private:
 		char* lines;
 		int indexer;
+		bool success;
 		char** fullPaths;
 		int* pathLenghts;
 		bool IsValidInput();
-		std::ifstream* file;
+		std::fstream* settingsFile;
 		static const int MAX_PATHS = 20;
 	};
 }

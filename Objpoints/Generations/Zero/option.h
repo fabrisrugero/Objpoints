@@ -21,7 +21,7 @@ namespace Tools{
 		virtual void outputIntroductions() = 0;
 		virtual void output(bool results = true) = 0;
 		static bool keyPressed(char upper, char lower);	
-		static void processKeysPressed(int digits = 11);
+		static int processKeysPressed(int maxchars = 11);
 	protected:
 		static bool outputErrorToSecreen(int option);
 		static char* validUserInputs;
@@ -46,6 +46,5 @@ namespace Tools{
 		static const char* alphabet;
 		static const char* lowercase;
 		static const char* uppercase;
-		static const int maxchars = 12;
 	};
 }
