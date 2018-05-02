@@ -24,6 +24,7 @@ namespace Tools{
 		radius = 3,
 		objectz = 1,
 		IsPoint = 6,
+		maxcolumns
 	};
 }
 

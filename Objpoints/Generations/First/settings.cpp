@@ -1,13 +1,9 @@
 #include "settings.h"
-char* Tools::settings::defaultPath = nullptr;
-char** Tools::settings::groups = nullptr;
-int Tools::settings::maxGroupIndex = 0;
-int Tools::settings::defaultPaths = 0;
-int Tools::settings::Paths = 0;
 int Tools::settings::grps = 0;
-bool Tools::settings::setPath(int index, char* output){
-	return false;
-}
+int Tools::settings::Paths = 0;
+int Tools::settings::defaultPaths = 0;
+int Tools::settings::maxGroupIndex = 0;
+char** Tools::settings::groups = nullptr;
 void Tools::settings::outputIntroductions(){
 	option::clearConsoleScreen();
 	std::cout << "Only the following paths are accepted are accepted: " << std::endl;
@@ -33,7 +29,8 @@ void Tools::settings::output(bool results){
 				while (this->indexer < this->pathLenghts[this->Indexer])
 					this->lines[this->interation++] = this->fullPaths[this->Indexer][this->indexer++];
 				this->lines[this->interation] = '\0'; std::cout << std::setfill(' ') << std::setw(63) << std::left << this->lines;
-				if (settings::defaultPaths != this->Indexer) std::cout << "|          |"; else std::cout << "|< default |";
+				if (settings::defaultPaths != this->Indexer && !this->removePaths[this->Indexer] ) std::cout << "|          |";
+				else if (this->removePaths[this->Indexer]) std::cout << "|< deleted |"; else std::cout << "|< default |";
 				if ((this->Indexer + 1) % 2 == 0 || this->Indexer + 1 == settings::Paths)
 					for (this->indexer = 0; this->indexer < 41; this->indexer++){
 					if (this->indexer == 0) std::cout << std::endl; else std::cout << "--";}
@@ -52,28 +49,35 @@ int Tools::settings::setPath(int index){
 }
 Tools::settings::settings(Menu Index) : option(settings::MAX_CHARS){
 	this->settingsFile = new std::fstream("settings.txt", std::ios_base::in);
+	this->removePaths = new bool[settings::MAX_CHARS]();
 	this->fullPaths = new char*[settings::MAX_CHARS];
 	this->pathLenghts = new int[settings::MAX_CHARS];
 	this->index = static_cast<int>(Index)+1;
 	this->Indexer = this->indexer = 0;
 	this->lines = new char[1000];
+	this->remove = false;
 }
 bool Tools::settings::IsValidInput(){
 	this->interation = atoi(option::validUserInputs);
+	if (this->interation - 100 >= 0){
+		this->remove = !this->remove;
+		 this->interation -= 100;}
 	return option::IsValidInput();
 };
 void Tools::settings::deconstruct(){
 	if (!this->settingsFile->is_open())
 		this->settingsFile->open("settings.txt", std::ios_base::out);
 	for (this->Indexer = 0; this->Indexer < settings::Paths; this->Indexer++){
+		if (this->removePaths[this->Indexer]) continue;
 		this->fullPaths[this->Indexer][this->pathLenghts[this->Indexer] + 1] = '\0';
 		this->fullPaths[this->Indexer][this->pathLenghts[this->Indexer]] = '\n';
 		*this->settingsFile << this->fullPaths[this->Indexer];
 		this->settingsFile->flush();}
   this->settingsFile->close();
- for (this->Indexer = 0; this->Indexer < settings::Paths; this->Indexer++)
-		delete[] this->fullPaths[this->Indexer];
- this->Indexer = this->indexer = settings::Paths = 0;
+  for (this->Indexer = 0; this->Indexer < settings::Paths; this->Indexer++) {
+	  this->removePaths[this->Indexer] = false;
+	  delete[] this->fullPaths[this->Indexer];}
+  this->Indexer = this->indexer = settings::Paths = 0; this->remove = false;
 }
 void Tools::settings::reconstruct(){
 	if (!this->settingsFile->is_open())
@@ -103,8 +107,11 @@ bool Tools::settings::update(){
 				this->fullPaths[settings::Paths][this->Indexer] = option::validUserInputs[this->Indexer];
 			this->fullPaths[settings::Paths++][this->Indexer] = '\0';
 		}
-		else if (success = (this->indexer > 2 && this->interation >= 0 && this->interation <= settings::Paths))
-			settings::defaultPaths = this->interation;
+		else if (success = (this->indexer > 2 && this->interation >= 0 && this->interation <= settings::Paths)){
+			if(!this->remove) settings::defaultPaths = this->interation;
+			this->removePaths[this->interation] = this->remove;
+		}
+
 	}
 	return true;
 }

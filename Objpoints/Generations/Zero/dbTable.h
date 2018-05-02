@@ -27,6 +27,7 @@ namespace Tools{
 		bool IsEqual(const char *a, const char *b);
 	public:
 		~dbTable();
+		bool *ignoredcolumns;
 		bool connectedTo(char* db);
 		int select(content content);
 		bool hasErrors(char* arr = nullptr);

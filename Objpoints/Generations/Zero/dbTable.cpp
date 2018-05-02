@@ -78,6 +78,7 @@ int Tools::dbTable::initcolumns(char* output, int setwidth){
 		output[this->indeXer += 1] = '-';
 	output[this->indeXer += 1] = '\n'; int pixels = 0;
 	for (this->Indexer = 0; this->Indexer < this->columns; this->Indexer++){
+		if (this->ignoredcolumns[this->indexer]) continue;
 		output[this->indeXer += 1] = '|';  pixels = this->indeXer;
 		this->indexer = static_cast<int>(std::floor((setwidth - this->widths[this->Indexer]) / 2));
 		for (this->inDexer = 0; this->inDexer < this->indexer; this->inDexer++)
@@ -113,6 +114,7 @@ int Tools::dbTable::handlErrors(){
 };
 void Tools::dbTable::initcolumns(){
 	this->widths = new int[this->columns]();
+	this->ignoredcolumns = new bool[columns]();
 	this->cols = new const char*[this->columns];
 	this->widths[objectz] = static_cast<int>(strlen(this->cols[objectz] = "objectz"));
 	this->widths[IsPoint] = static_cast<int>(strlen(this->cols[IsPoint] = "IsPoint"));

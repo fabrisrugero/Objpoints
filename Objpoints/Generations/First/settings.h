@@ -3,12 +3,13 @@
 #include <fstream>
 namespace Tools{
 	struct settings : public option{
-		static bool setPath(int index, char* output);// set the output to valid database
 		static const int QUERY_SIZE = 300;
 		void output(bool results = true);
 		static const int MAX_COLUMNS = 7;
 		static const int MAX_CHARS = 50;
-		static int setPath(int index);// set the static "validuserinputs" to valid database
+		static int setPath(int index);
+		// set the static "defaultPath" to a fullpath
+		// set the static "validUserInputs" to a filename
 		void outputIntroductions();
 		static int maxGroupIndex;
 		static char* defaultPath;
@@ -24,9 +25,11 @@ namespace Tools{
 	private:
 		char* lines;
 		int indexer;
+		bool remove;
 		bool success;
 		char** fullPaths;
 		int* pathLenghts;
+		bool* removePaths;
 		bool IsValidInput();
 		std::fstream* settingsFile;
 		static const int MAX_PATHS = 20;

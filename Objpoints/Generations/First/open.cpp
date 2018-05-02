@@ -125,7 +125,7 @@ Tools::open::open(Menu Index) : option(settings::MAX_CHARS){
 	this->colsoutput[500] = {};
 	this->validUserInputs = nullptr;
 	this->index = static_cast<int>(Index)+1;
-	this->errmsg = new char[settings::QUERY_SIZE];
+	this->errmsg = new char[option::max_size];
 }
 bool Tools::open::opendb(){
 	if (!this->IsDbImage){
