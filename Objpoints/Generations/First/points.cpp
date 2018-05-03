@@ -68,7 +68,7 @@ bool Tools::points::IsValidInput(){
 			option::validUserInputs[0] == 'd')
 			return true;}
 	else if (this->IsUpdating)
-		return settings::setPath(settings::defaultPaths) > 0;
+		return settings::setPath(settings::defaultPathIndex) > 0;
 	return false;
 };
 Tools::points::~points(){

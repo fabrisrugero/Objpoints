@@ -1,9 +1,14 @@
 #include "settings.h"
 int Tools::settings::grps = 0;
 int Tools::settings::Paths = 0;
-int Tools::settings::defaultPaths = 0;
+int Tools::settings::inDexer = 0;
+int Tools::settings::rootIndex = 0;
 int Tools::settings::maxGroupIndex = 0;
 char** Tools::settings::groups = nullptr;
+int Tools::settings::defaultPathIndex = 0;
+char** Tools::settings::fullPaths = nullptr;
+int* Tools::settings::pathLenghts = nullptr;
+char* Tools::settings::defaultPath = nullptr;
 void Tools::settings::outputIntroductions(){
 	option::clearConsoleScreen();
 	std::cout << "Only the following paths are accepted are accepted: " << std::endl;
@@ -18,20 +23,20 @@ void Tools::settings::output(bool results){
 	if (!results)
 		std::cout << this->index << ") view settings" << std::endl;
 	else{
-		if (settings::Paths > 0){
+		if (Paths > 0){
 			option::clearConsoleScreen();
 			for (this->Indexer = 0; this->Indexer < 40; this->Indexer++) std::cout << "--";
-			for (this->Indexer = 0; this->Indexer < settings::Paths; this->Indexer++){
+			for (this->Indexer = 0; this->Indexer < Paths; this->Indexer++){
 				std::cout << "\n|" << std::setfill('0')
 					<< std::setw(3) << std::right << this->Indexer << "|";
-				this->indexer = this->pathLenghts[this->Indexer] - 63;
+				this->indexer = pathLenghts[this->Indexer] - 63;
 				if (this->indexer < 0) this->indexer = 0; this->interation = 0;
-				while (this->indexer < this->pathLenghts[this->Indexer])
+				while (this->indexer < pathLenghts[this->Indexer])
 					this->lines[this->interation++] = this->fullPaths[this->Indexer][this->indexer++];
 				this->lines[this->interation] = '\0'; std::cout << std::setfill(' ') << std::setw(63) << std::left << this->lines;
-				if (settings::defaultPaths != this->Indexer && !this->removePaths[this->Indexer] ) std::cout << "|          |";
+				if (defaultPathIndex != this->Indexer && !this->removePaths[this->Indexer] ) std::cout << "|          |";
 				else if (this->removePaths[this->Indexer]) std::cout << "|< deleted |"; else std::cout << "|< default |";
-				if ((this->Indexer + 1) % 2 == 0 || this->Indexer + 1 == settings::Paths)
+				if ((this->Indexer + 1) % 2 == 0 || this->Indexer + 1 == Paths)
 					for (this->indexer = 0; this->indexer < 41; this->indexer++){
 					if (this->indexer == 0) std::cout << std::endl; else std::cout << "--";}
 			}
@@ -39,19 +44,40 @@ void Tools::settings::output(bool results){
 		if (!this->success) 
 			std::cout << " Error: unable to configure any settings press\n " <<
 			this->index << " to try again or press enter to exit" << std::endl;
-		else if (this->success && settings::Paths == 0)
+		else if (this->success && Paths == 0)
 			std::cout << " Oops: you have not files to configure press\n " <<
 			this->index << " to add files to settings or press enter to exit" << std::endl;
 	}
 }
-int Tools::settings::setPath(int index){
+int Tools::settings::setPath(int index, bool newPath){
+	if (!newPath && index >= 0 && index < Paths){
+		for (inDexer = 0; fullPaths[defaultPathIndex][inDexer] != '\0'; inDexer++)
+			defaultPath[inDexer] = fullPaths[defaultPathIndex][inDexer];
+		defaultPath[inDexer] = '\0';
+		for (inDexer = 0; defaultPath[inDexer] != '\0'; inDexer++)
+			if (defaultPath[inDexer] == '\\') rootIndex = inDexer;
+		for (inDexer = rootIndex + 1; defaultPath[inDexer] != '\0'; inDexer++)
+			option::validUserInputs[inDexer] = defaultPath[inDexer];
+		option::validUserInputs[inDexer] = '\0';
+		inDexer = 0; return pathLenghts[defaultPathIndex];
+	}
+	else if(newPath){
+		while (option::validUserInputs[inDexer] != '\0') inDexer++;
+		fullPaths[Paths] = new char[inDexer + 2];
+		for (inDexer = 0; option::validUserInputs[inDexer] != '\0'; inDexer++){
+			fullPaths[Paths][inDexer] = option::validUserInputs[inDexer++];
+			defaultPath[inDexer] = option::validUserInputs[inDexer];}
+		defaultPath[inDexer] = fullPaths[Paths][inDexer] = '\0';
+		defaultPathIndex = Paths; pathLenghts[Paths++] = inDexer;
+		inDexer = 0; return pathLenghts[defaultPathIndex];
+	}
 	return 0;
 }
-Tools::settings::settings(Menu Index) : option(settings::MAX_CHARS){
+Tools::settings::settings(Menu Index) : option(MAX_CHARS){
 	this->settingsFile = new std::fstream("settings.txt", std::ios_base::in);
-	this->removePaths = new bool[settings::MAX_CHARS]();
-	this->fullPaths = new char*[settings::MAX_CHARS];
-	this->pathLenghts = new int[settings::MAX_CHARS];
+	settings::pathLenghts = new int[MAX_CHARS];
+	settings::fullPaths = new char*[MAX_CHARS];
+	this->removePaths = new bool[MAX_CHARS]();
 	this->index = static_cast<int>(Index)+1;
 	this->Indexer = this->indexer = 0;
 	this->lines = new char[1000];
@@ -67,31 +93,31 @@ bool Tools::settings::IsValidInput(){
 void Tools::settings::deconstruct(){
 	if (!this->settingsFile->is_open())
 		this->settingsFile->open("settings.txt", std::ios_base::out);
-	for (this->Indexer = 0; this->Indexer < settings::Paths; this->Indexer++){
+	for (this->Indexer = 0; this->Indexer < Paths; this->Indexer++){
 		if (this->removePaths[this->Indexer]) continue;
-		this->fullPaths[this->Indexer][this->pathLenghts[this->Indexer] + 1] = '\0';
-		this->fullPaths[this->Indexer][this->pathLenghts[this->Indexer]] = '\n';
-		*this->settingsFile << this->fullPaths[this->Indexer];
+		fullPaths[this->Indexer][pathLenghts[this->Indexer] + 1] = '\0';
+		fullPaths[this->Indexer][pathLenghts[this->Indexer]] = '\n';
+		*this->settingsFile << fullPaths[this->Indexer];
 		this->settingsFile->flush();}
   this->settingsFile->close();
-  for (this->Indexer = 0; this->Indexer < settings::Paths; this->Indexer++) {
+  for (this->Indexer = 0; this->Indexer < Paths; this->Indexer++) {
 	  this->removePaths[this->Indexer] = false;
-	  delete[] this->fullPaths[this->Indexer];}
-  this->Indexer = this->indexer = settings::Paths = 0; this->remove = false;
+	  delete[] fullPaths[this->Indexer];}
+  this->Indexer = this->indexer = Paths = 0; this->remove = false;
 }
 void Tools::settings::reconstruct(){
 	if (!this->settingsFile->is_open())
 		this->settingsFile->open("settings.txt", std::ios_base::in);
 	this->settingsFile->read(this->lines, 1000);
 	int size = static_cast<int>(this->settingsFile->gcount());
-	if (size == 0) return this->settingsFile->close(); int endOfline = settings::Paths;
-	while (this->Indexer++ < settings::MAX_PATHS && endOfline < size){
+	if (size == 0) return this->settingsFile->close(); int endOfline = Paths;
+	while (this->Indexer++ < MAX_PATHS && endOfline < size){
 		while (this->lines[endOfline] != '\n') endOfline++;
-		this->fullPaths[settings::Paths] = new char[endOfline + 2];
+		fullPaths[Paths] = new char[endOfline + 2];
 		for (this->interation = 0; this->lines[this->indexer] != '\n'; this->interation++)
-			this->fullPaths[settings::Paths][this->interation] = this->lines[this->indexer++];
-		this->fullPaths[settings::Paths][this->interation] = '\0'; this->indexer++; endOfline++;
-		this->pathLenghts[settings::Paths++] = this->interation; }
+			fullPaths[Paths][this->interation] = this->lines[this->indexer++];
+		fullPaths[Paths][this->interation] = '\0'; this->indexer++; endOfline++;
+		pathLenghts[Paths++] = this->interation; }
 	for (this->Indexer = 0; this->Indexer < this->settingsFile->gcount(); this->Indexer++) this->lines[this->Indexer] = '\0';
 	this->settingsFile->clear(); this->settingsFile->seekg(0); this->Indexer = this->indexer = 0;
 	this->settingsFile->close();
@@ -101,20 +127,23 @@ bool Tools::settings::update(){
 	this->indexer = option::processKeysPressed(option::max_size);
 	if (this->IsValidInput()){
 		if (success = option::decimalIndex > 0){
-			this->pathLenghts[settings::Paths] = this->indexer;
-			this->fullPaths[settings::Paths] = new char[this->indexer + 2];
+			pathLenghts[Paths] = this->indexer;
+			fullPaths[Paths] = new char[this->indexer + 2];
 			for (this->Indexer = 0; option::validUserInputs[this->Indexer] != '\0'; this->Indexer++)
-				this->fullPaths[settings::Paths][this->Indexer] = option::validUserInputs[this->Indexer];
-			this->fullPaths[settings::Paths++][this->Indexer] = '\0';
+				fullPaths[Paths][this->Indexer] = option::validUserInputs[this->Indexer];
+			fullPaths[Paths++][this->Indexer] = '\0';
 		}
-		else if (success = (this->indexer > 2 && this->interation >= 0 && this->interation <= settings::Paths)){
-			if(!this->remove) settings::defaultPaths = this->interation;
+		else if (success = (this->indexer > 2 && this->interation >= 0 && this->interation <= Paths)){
+			if(!this->remove) defaultPathIndex = this->interation;
 			this->removePaths[this->interation] = this->remove;
 		}
-
 	}
 	return true;
 }
 Tools::settings::~settings(){
-
+	delete[] this->lines;
+	delete this->settingsFile;
+	delete[] this->removePaths;
+	delete[] settings::fullPaths;
+	delete[] settings::pathLenghts;
 }
