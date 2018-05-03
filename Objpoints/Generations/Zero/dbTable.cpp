@@ -6,6 +6,9 @@ void Tools::dbTable::select(int content){
 		break;
 	case custom: 
 		break;
+	case current:
+		this->where(objectz, settings::groups[this->groupIndex]);
+		break;
 	case group:
 		this->groupIndex = 0;
 		this->where(objectz, settings::groups[this->groupIndex]);
@@ -41,7 +44,7 @@ bool Tools::dbTable::connectedTo(char* db){
 };
 Tools::dbTable::dbTable(char* db, int end, int str){
 	if (end -= str > 0) this->database = new char[end]; else this->database = nullptr;
-	for (this->Indexer = 0; this->Indexer < end; this->Indexer++) this->database[this->Indexer] = db[this->Indexer]; this->database[this->Indexer] = '\0';
+	for (this->Indexer = 0; this->Indexer < end; this->Indexer++) this->database[this->Indexer] = db[this->Indexer]; if (end > 0) this->database[this->Indexer] = '\0';
 	if (this->database == nullptr) this->query = new Tools::query(Tools::settings::defaultPath, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
 	else this->query = new Tools::query(this->database, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
 	this->querystatement = new char[settings::QUERY_SIZE];
@@ -57,6 +60,9 @@ Tools::dbTable::dbTable(char* db, int end, int str){
 	}
 };
 void Tools::dbTable::select(char* content, int COL, int row){
+	//store setwidth create a class level buffer that get data from query
+	// then issure that data doesn't exceed setwidth if so take last digits
+	// and return then in the content variable.
 	this->query->readcell(content, query->cellposition(COL, row + 1));
 	this->query->clearbuffer(content, query->getlenght(COL, row + 1), settings::MAX_CHARS);
 }
@@ -78,7 +84,7 @@ int Tools::dbTable::initcolumns(char* output, int setwidth){
 		output[this->indeXer += 1] = '-';
 	output[this->indeXer += 1] = '\n'; int pixels = 0;
 	for (this->Indexer = 0; this->Indexer < this->columns; this->Indexer++){
-		if (this->ignoredcolumns[this->indexer]) continue;
+		if (this->ignoredcolumns[this->Indexer]) continue;
 		output[this->indeXer += 1] = '|';  pixels = this->indeXer;
 		this->indexer = static_cast<int>(std::floor((setwidth - this->widths[this->Indexer]) / 2));
 		for (this->inDexer = 0; this->inDexer < this->indexer; this->inDexer++)

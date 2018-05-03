@@ -12,8 +12,8 @@ int main(){
 	option** options = new option*[Menu::Max];
 	options[Menu::One] = new open(Menu::One);
 	options[Menu::Two] = new save(Menu::Two);
-	options[Menu::Four] = new points(Menu::Three);
-	options[Menu::Three] = new history(Menu::Four);
+	options[Menu::Three] = new points(Menu::Three);
+	options[Menu::Four] = new history(Menu::Four);
 	options[Menu::Five] = new settings(Menu::Five);
 	do {
 		option::removeKeysPressed();

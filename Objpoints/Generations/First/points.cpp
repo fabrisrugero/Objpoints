@@ -8,15 +8,15 @@ void Tools::points::outputIntroductions(){
 	std::cout << "2.Left and right arrow keys or a and d to launch points editor\n";
 	std::cout << "3.To create a new point press enter whilst point editor in focus\n";
 	std::cout << "4.once done editing a point press ecaspe whilst editor in focus \n";
-	std::cout << "then press enter whilst console in focus to tabulate your work. \n\n";
-	std::cout << "5.Arrow keys are used to move and WDAS are used to increase radius in the editor\n";
+	std::cout << "then press enter whilst console in focus to tabulate your work. \n";
+	std::cout << "5.Arrow keys are used to move and WDAS are used to increase radius in the editor\n\n";
 };
 void Tools::points::output(bool results){
 	if (!results)
 		std::cout << this->index << ") Create/modify points" << std::endl;
 	else{
-		option::clearConsoleScreen(); if (this->table != nullptr) delete this->table;	
-		this->table = new dbTable(nullptr); if (this->table->hasErrors(this->errmsg))return abort();
+		 if (this->table == nullptr) this->table = new dbTable(nullptr);
+		 option::clearConsoleScreen(); if (this->table->hasErrors(this->errmsg))return abort();
 		for (this->Indexer = 0; this->Indexer < maxcolumns; this->Indexer++)
 			if (this->Indexer == id || this->Indexer == objectz) this->table->ignoredcolumns[this->Indexer] = true;
 		this->columns = this->table->initcolumns(this->colsoutput, this->setwidth);
@@ -26,16 +26,21 @@ void Tools::points::output(bool results){
 		for (this->Indexer = 0; this->Indexer < this->rows; this->Indexer++){
 			for (this->interation = 0; this->interation < this->columns; this->interation++){
 				if (this->table->ignoredcolumns[this->interation]) continue;
-				this->table->select(this->results, this->interation, 0);
+				this->table->select(this->results, this->interation, this->Indexer);
 				std::cout << "|" << std::setw(this->setwidth) << this->results;} std::cout << "|\n";}
-		std::cout << "\nEnter a command or press <<" << this->index << " simply press enter to exit to main menu: ";
-		option::removeKeysPressed(); option::processKeysPressed(); if(!this->IsValidInput()) return;
+		std::cout << "\ntranverse or edit tables or simply press enter to exit database: ";
+		option::removeKeysPressed(); option::processKeysPressed(); 
 		if (results = option::keyPressed('S', 's')) this->content = content::next;
 		else if (results = option::keyPressed('W', 'w')) this->content = content::previous;
 		else if (results = (option::keyPressed('D', 'd') || option::keyPressed('A', 'a'))){
+			this->content = content::current;
 			//start points editor in new thread here
 		}
 		if (results) return this->output(true);
+		else if (this->editorIsOpen)
+			std::cout << "\nclose the Editor window first (if open), Once Editor window closed '"
+			<< "\npress " << this->index << " to open a new database or press enter again to exit to main menu" << std::endl;
+		else std::cout << "\npress " << this->index << " to open a new database or press enter again to exit to main menu" << std::endl;
 	}
 }
 Tools::points::points(Menu Index) : option(settings::MAX_CHARS){
@@ -43,7 +48,7 @@ Tools::points::points(Menu Index) : option(settings::MAX_CHARS){
 	this->index = static_cast<int>(Index)+1;
 	this->Indexer = this->interation = 0;
 	this->content = content::next;
-	this->IsUpdating = true;
+	this->editorIsOpen = false;
 	this->table = nullptr;
 }
 void Tools::points::deconstruct(){
@@ -53,22 +58,16 @@ void Tools::points::reconstruct(){
 bool Tools::points::update(){
 	std::cout << "Enter the database index or simply pres enter to open default index: ";
 	option::removeKeysPressed(); option::processKeysPressed();
-	if (this->IsValidInput()) this->IsUpdating = false;
+	if (this->IsValidInput()) return true;
 	else std::cout << "you have entered an invalid databse index and the default index isn't "
 		<<"\nvalid either check your settings and make sure there are configured correctly";
-	return !this->IsUpdating;
+	return false;
 }
 bool Tools::points::IsValidInput(){
-	if (option::IsValidInput() && option::decimalIndex < 0){
-		if (this->IsUpdating)
-			return settings::setPath(atoi(option::validUserInputs)) > 0;
-		else if (option::validUserInputs[0] == 'a' ||
-			option::validUserInputs[0] == 'w' ||
-			option::validUserInputs[0] == 's' ||
-			option::validUserInputs[0] == 'd')
-			return true;}
-	else if (this->IsUpdating)
-		return settings::setPath(settings::defaultPathIndex) > 0;
+	if (option::IsValidInput() && option::decimalIndex < 0)
+		return settings::setPath(atoi(option::validUserInputs), false) > 0;
+	else 
+		return settings::setPath(settings::defaultPathIndex, false) > 0;
 	return false;
 };
 Tools::points::~points(){

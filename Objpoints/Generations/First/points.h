@@ -6,8 +6,8 @@ namespace Tools{
 		Tools::dbTable* table;
 		char colsoutput[500];
 		bool IsValidInput();
+		bool editorIsOpen;
 		content content;
-		bool IsUpdating;
 		bool hasErrmsg;
 		char* errmsg;
 		void abort();

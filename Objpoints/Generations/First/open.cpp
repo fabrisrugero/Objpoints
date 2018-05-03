@@ -51,20 +51,20 @@ void Tools::open::output(bool results){
 					std::cout << "|\n"; break;}
 				rows = this->table->select(Tools::content::next);
 				if (this->hasErrmsg = this->table->hasErrors(this->errmsg)) break;}
-			if (this->hasErrmsg)return abort();
+			if (this->hasErrmsg)return abort(); if (this->IsNewPath) settings::setPath(0, true);
 		}
 		else if (this->threadIsBusy)
 			std::cout << "close the Image window first, Once Image window closed '"
 			<< "\npress " << this->index << " to try again or enter to exit to main menu" << std::endl;
 		else{
-			this->threadIsBusy = true;
-			std::cout << "opened '" << option::validUserInputs << "'"
+			if (this->IsNewPath) settings::setPath(0, true);
+			this->threadIsBusy = true;  std::cout << "opened '" << option::validUserInputs << "'"
 				<< "\npress " << this->index << " to open a new image or database or press enter to exit" << std::endl;
 		}
 	}
 }
 bool Tools::open::IsValidInput(){
-	if (option::IsValidInput() && option::decimalIndex > 0){
+	if (option::decimalIndex > 0){
 		while (option::validUserInputs[option::decimalIndex + this->decimalplaces + 1] != '\0') this->decimalplaces++;
 		if (this->decimalplaces < 2 || this->decimalplaces > 4) return false;
 		this->Indexer = this->decimalplaces;
@@ -117,10 +117,12 @@ void Tools::open::reconstruct(){
 	this->InDexer = 0;
 	this->indeXer = 0;
 	this->deconstruct();
+	this->IsNewPath = false;
 	this->decimalplaces = 0;
 }
 Tools::open::open(Menu Index) : option(settings::MAX_CHARS){
 	this->window = nullptr;
+	this->IsNewPath = false;
 	this->threadIsBusy = false;
 	this->colsoutput[500] = {};
 	this->validUserInputs = nullptr;
@@ -168,12 +170,12 @@ bool Tools::open::update(){
 	std::cout << "Enter image/database: "; option::removeKeysPressed(); 
 	option::processKeysPressed(option::alphanumeric);
 	if (this->IsValidInput() && this->opendb())
-		return true;
-	if (settings::setPath(settings::defaultPathIndex) > 0 && this->IsValidInput() && this->opendb())
+		return this->IsNewPath = true;
+	if (settings::setPath(settings::defaultPathIndex,false) > 0 && this->IsValidInput() && this->opendb())
 		return true;
 	else
 		for (this->InDexer = 0; this->InDexer < settings::Paths; this->InDexer++)
-			if (settings::setPath(this->InDexer) > 0 && this->IsValidInput() && this->opendb())
+			if (settings::setPath(this->InDexer,false) > 0 && this->IsValidInput() && this->opendb())
 				return true;
 	if (this->hasErrmsg) std::cout << this->errmsg;
 	else std::cout << " Error: unable to open a file including any defualts set in settings";

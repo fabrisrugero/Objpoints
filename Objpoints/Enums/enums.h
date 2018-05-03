@@ -13,6 +13,7 @@ namespace Tools{
 		next,
 		group,
 		custom,
+		current,
 		distinct,
 		previous,
 	};

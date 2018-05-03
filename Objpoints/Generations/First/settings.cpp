@@ -52,20 +52,22 @@ void Tools::settings::output(bool results){
 int Tools::settings::setPath(int index, bool newPath){
 	if (!newPath && index >= 0 && index < Paths){
 		for (inDexer = 0; fullPaths[defaultPathIndex][inDexer] != '\0'; inDexer++)
-			defaultPath[inDexer] = fullPaths[defaultPathIndex][inDexer];
-		defaultPath[inDexer] = '\0';
+			defaultPath[inDexer] = fullPaths[defaultPathIndex][inDexer]; defaultPath[inDexer] = '\0';
 		for (inDexer = 0; defaultPath[inDexer] != '\0'; inDexer++)
-			if (defaultPath[inDexer] == '\\') rootIndex = inDexer;
-		for (inDexer = rootIndex + 1; defaultPath[inDexer] != '\0'; inDexer++)
-			option::validUserInputs[inDexer] = defaultPath[inDexer];
-		option::validUserInputs[inDexer] = '\0';
+			if (defaultPath[inDexer] == '\\') rootIndex = inDexer + 1;
+		for (inDexer = rootIndex; defaultPath[inDexer] != '\0'; inDexer++)
+			option::validUserInputs[inDexer - rootIndex] = defaultPath[inDexer];
+		option::validUserInputs[inDexer - rootIndex - 1] = 
+			option::validUserInputs[inDexer - rootIndex] = defaultPath[inDexer - 1] = '\0';
+		for (inDexer = 0; option::validUserInputs[inDexer] != '\0'; inDexer++)
+		if (option::validUserInputs[inDexer] == '.') option::decimalIndex = inDexer;
 		inDexer = 0; return pathLenghts[defaultPathIndex];
 	}
 	else if(newPath){
 		while (option::validUserInputs[inDexer] != '\0') inDexer++;
 		fullPaths[Paths] = new char[inDexer + 2];
 		for (inDexer = 0; option::validUserInputs[inDexer] != '\0'; inDexer++){
-			fullPaths[Paths][inDexer] = option::validUserInputs[inDexer++];
+			fullPaths[Paths][inDexer] = option::validUserInputs[inDexer];
 			defaultPath[inDexer] = option::validUserInputs[inDexer];}
 		defaultPath[inDexer] = fullPaths[Paths][inDexer] = '\0';
 		defaultPathIndex = Paths; pathLenghts[Paths++] = inDexer;
@@ -75,6 +77,7 @@ int Tools::settings::setPath(int index, bool newPath){
 }
 Tools::settings::settings(Menu Index) : option(MAX_CHARS){
 	this->settingsFile = new std::fstream("settings.txt", std::ios_base::in);
+	settings::defaultPath = new char[option::max_size];
 	settings::pathLenghts = new int[MAX_CHARS];
 	settings::fullPaths = new char*[MAX_CHARS];
 	this->removePaths = new bool[MAX_CHARS]();
@@ -100,18 +103,20 @@ void Tools::settings::deconstruct(){
 		*this->settingsFile << fullPaths[this->Indexer];
 		this->settingsFile->flush();}
   this->settingsFile->close();
-  for (this->Indexer = 0; this->Indexer < Paths; this->Indexer++) {
-	  this->removePaths[this->Indexer] = false;
-	  delete[] fullPaths[this->Indexer];}
-  this->Indexer = this->indexer = Paths = 0; this->remove = false;
+  this->remove = false;
+  this->Indexer = 0;
+  this->indexer = 0;
 }
 void Tools::settings::reconstruct(){
+	if (Paths > 0) this->deconstruct();
 	if (!this->settingsFile->is_open())
 		this->settingsFile->open("settings.txt", std::ios_base::in);
 	this->settingsFile->read(this->lines, 1000);
 	int size = static_cast<int>(this->settingsFile->gcount());
-	if (size == 0) return this->settingsFile->close(); int endOfline = Paths;
-	while (this->Indexer++ < MAX_PATHS && endOfline < size){
+	if (size == 0) return this->settingsFile->close(); int endOfline = 0;
+	for (this->interation = 0; this->interation < Paths; this->interation++) {
+		delete[] fullPaths[this->interation]; this->removePaths[this->interation] = false;}	
+	Paths = 0; while (this->Indexer++ < MAX_PATHS && endOfline < size){
 		while (this->lines[endOfline] != '\n') endOfline++;
 		fullPaths[Paths] = new char[endOfline + 2];
 		for (this->interation = 0; this->lines[this->indexer] != '\n'; this->interation++)

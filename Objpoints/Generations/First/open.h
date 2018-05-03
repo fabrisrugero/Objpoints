@@ -11,6 +11,7 @@ namespace Tools{
 		bool opendb();
 		bool IsDbImage;
 		bool hasErrmsg;
+		bool IsNewPath;
 		int decimalplaces;
 		bool threadIsBusy;
 		bool IsValidInput();

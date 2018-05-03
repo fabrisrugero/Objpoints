@@ -3,7 +3,7 @@
 #include <fstream>
 namespace Tools{
 	struct settings : public option{
-		static int setPath(int index, bool newPath = false);
+		static int setPath(int index, bool newPath);
 		static const int QUERY_SIZE = 300;
 		void output(bool results = true);
 		static const int MAX_COLUMNS = 7;
