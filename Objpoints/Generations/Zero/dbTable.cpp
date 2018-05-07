@@ -48,6 +48,7 @@ Tools::dbTable::dbTable(char* db, int end, int str){
 	if (this->database == nullptr) this->query = new Tools::query(Tools::settings::defaultPath, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
 	else this->query = new Tools::query(this->database, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
 	this->querystatement = new char[settings::QUERY_SIZE];
+	this->content = new char[settings::MAX_CHARS + 50];
 	this->sqlcommand = this->querystatement;
 	this->table = "objectz_points";
 	this->errors = nullptr;
@@ -60,13 +61,25 @@ Tools::dbTable::dbTable(char* db, int end, int str){
 	}
 };
 void Tools::dbTable::select(char* content, int COL, int row){
-	//store setwidth create a class level buffer that get data from query
-	// then issure that data doesn't exceed setwidth if so take last digits
-	// and return then in the content variable.
-	this->query->readcell(content, query->cellposition(COL, row + 1));
-	this->query->clearbuffer(content, query->getlenght(COL, row + 1), settings::MAX_CHARS);
+	if (this->setwidth <= 0){
+		this->query->readcell(content, query->cellposition(COL, row + 1));
+		this->query->clearbuffer(content, query->getlenght(COL, row + 1), settings::MAX_CHARS);}
+	else 
+	{   this->indexer = query->getlenght(COL, row + 1);
+	    this->Indexer = std::abs(this->setwidth - this->indexer);
+		this->query->readcell(this->content, query->cellposition(COL, row + 1));
+		this->query->clearbuffer(this->content, this->indexer, settings::MAX_CHARS);
+		if (this->success = (this->setwidth - this->indexer >= 0))
+			for (this->indexer = 0; this->content[this->indexer] != '\0'; this->indexer++)
+				content[this->indexer] = this->content[this->indexer];
+		else
+			for (this->indexer = this->Indexer; this->content[this->indexer] != '\0'; this->indexer++)
+				content[this->indexer - this->Indexer] = this->content[this->indexer];
+		if (this->success) this->Indexer = 0;
+		content[this->indexer - this->Indexer] = this->content[this->indexer];
+	}
 }
-int Tools::dbTable::select(content content){
+int Tools::dbTable::select(Tools::content content){
 	this->select(static_cast<int>(content)); char **results = nullptr; int rows, columns;
 	if (sqlite3_get_table(this->db, this->sqlcommand, &results, &rows, &columns, nullptr)) return this->handlErrors();
 	else this->query->copyrecords(results, rows, columns);
@@ -79,7 +92,8 @@ void Tools::dbTable::where(Tools::columns column, const char* value){
 	this->query->selectFromTable(this->querystatement, this->table, this->lenght, this->query->COL_ONE);
 };
 int Tools::dbTable::initcolumns(char* output, int setwidth){
-	if (this->indeXer > 0) return this->columns; this->indeXer = -1;
+	if (this->indeXer > 0 && this->setwidth == setwidth) return this->columns; 
+	this->indeXer = -1; this->setwidth = setwidth;
 	for (this->indexer = 0; this->indexer < this->columns*setwidth + 8; this->indexer++)
 		output[this->indeXer += 1] = '-';
 	output[this->indeXer += 1] = '\n'; int pixels = 0;
@@ -122,13 +136,14 @@ void Tools::dbTable::initcolumns(){
 	this->widths = new int[this->columns]();
 	this->ignoredcolumns = new bool[columns]();
 	this->cols = new const char*[this->columns];
-	this->widths[objectz] = static_cast<int>(strlen(this->cols[objectz] = "objectz"));
-	this->widths[IsPoint] = static_cast<int>(strlen(this->cols[IsPoint] = "IsPoint"));
+	this->widths[id] = static_cast<int>(strlen(this->cols[id] = "id"));
 	this->widths[pointx] = static_cast<int>(strlen(this->cols[pointx] = "pointx"));
 	this->widths[pointy] = static_cast<int>(strlen(this->cols[pointy] = "pointy"));
 	this->widths[pointz] = static_cast<int>(strlen(this->cols[pointz] = "points"));
 	this->widths[radius] = static_cast<int>(strlen(this->cols[radius] = "radius"));
-	this->widths[id] = static_cast<int>(strlen(this->cols[id] = "id"));
+	this->widths[objectz] = static_cast<int>(strlen(this->cols[objectz] = "objectz"));
+	this->widths[IsPoint] = static_cast<int>(strlen(this->cols[IsPoint] = "IsPoint"));
+
 };
 Tools::dbTable::~dbTable(){
 	delete this->query;

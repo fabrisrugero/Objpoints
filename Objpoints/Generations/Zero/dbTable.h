@@ -12,6 +12,9 @@ namespace Tools{
 		int* widths;
 		int columns;
 		char* errors;
+		int setwidth;
+		bool success;
+		char* content;
 		char* database;
 		int groupIndex;
 		const char** cols;
@@ -29,7 +32,7 @@ namespace Tools{
 		~dbTable();
 		bool *ignoredcolumns;
 		bool connectedTo(char* db);
-		int select(content content);
+		int select(Tools::content content);
 		bool hasErrors(char* arr = nullptr);
 		int initcolumns(char* output, int setwidth);
 		dbTable(char* db, int end = 0, int str = 0);
