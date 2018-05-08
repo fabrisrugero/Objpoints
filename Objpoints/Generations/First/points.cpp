@@ -28,21 +28,34 @@ void Tools::points::output(bool results){
 				if (this->table->ignoredcolumns[this->interation]) continue;
 				this->table->select(this->results, this->interation, this->Indexer);
 				std::cout << "|" << std::setw(this->setwidth) << this->results;} std::cout << "|\n";}
-		std::cout << "\ntranverse or edit tables or simply press enter to exit database: ";
+		if (!this->issueWarning) std::cout << "\ntranverse or edit tables or simply press enter to exit database: ";
+		else if (!(this->issueWarning = false)) std::cout << "\nclose the Editor window first before exiting";
 		option::removeKeysPressed(); option::processKeysPressed(); 
 		if (results = option::keyPressed('S', 's')) this->content = content::next;
 		else if (results = option::keyPressed('W', 'w')) this->content = content::previous;
 		else if (results = (option::keyPressed('D', 'd') || option::keyPressed('A', 'a'))){
-			this->content = content::current;
-			//start points editor in new thread here
-		}
+			this->content = content::current; if (!this->editorIsOpen) {
+				settings::setPath(this->pathIndex + 1, false);
+				this->editor = new std::thread{ [=](){
+					this->window = new sfmlMananger(
+						800, 600, settings::defaultPath);
+					this->window->drawing();
+					delete this->window;
+					this->window = nullptr;
+					this->editorIsOpen = false;
+				} }; this->editorIsOpen = true;}}
 		if (results) return this->output(true);
-		else if (this->editorIsOpen)
-			std::cout << "\nclose the Editor window first (if open), Once Editor window closed '"
-			<< "\npress " << this->index << " to open a new database or press enter again to exit to main menu" << std::endl;
+		else if (this->editorIsOpen) return this->output(this->issueWarning = true);
 		else std::cout << "\npress " << this->index << " to open a new database or press enter again to exit to main menu" << std::endl;
 	}
 }
+bool Tools::points::IsValidInput(){
+	if (option::IsValidInput() && option::decimalIndex < 0)
+		return settings::setPath(this->pathIndex = atoi(option::validUserInputs), false) > 0;
+	else 
+		return settings::setPath(this->pathIndex = settings::defaultPathIndex, false) > 0;
+	return false;
+};
 Tools::points::points(Menu Index) : option(settings::MAX_CHARS){
 	this->errmsg = new char[option::max_size];
 	this->index = static_cast<int>(Index)+1;
@@ -52,8 +65,15 @@ Tools::points::points(Menu Index) : option(settings::MAX_CHARS){
 	this->table = nullptr;
 }
 void Tools::points::deconstruct(){
+	if (!this->editorIsOpen && 
+		this->editor != nullptr) {
+		this->editor->join();
+		delete this->editor;
+		this->editor = nullptr;
+	}
 }
 void Tools::points::reconstruct(){
+	this->issueWarning = false;
 }
 bool Tools::points::update(){
 	std::cout << "Enter the database index or simply pres enter to open default index: ";
@@ -63,17 +83,10 @@ bool Tools::points::update(){
 		<<"\nvalid either check your settings and make sure there are configured correctly";
 	return false;
 }
-bool Tools::points::IsValidInput(){
-	if (option::IsValidInput() && option::decimalIndex < 0)
-		return settings::setPath(atoi(option::validUserInputs), false) > 0;
-	else 
-		return settings::setPath(settings::defaultPathIndex, false) > 0;
-	return false;
-};
-Tools::points::~points(){
-
-}
 void Tools::points::abort(){
 	std::cout << this->errmsg << "\npress " << this->index
 		<< " to try again or press enter to exit" << std::endl;
+}
+Tools::points::~points(){
+
 }

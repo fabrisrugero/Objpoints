@@ -1,14 +1,20 @@
 #pragma once
+#include <thread>
 #include "../Zero/option.h"
+#include "../Zero/sfmlManager.h"
 namespace Tools{
 	class points : public option{
+		Tools::sfmlMananger* window;
 		const int setwidth = 10;
 		Tools::dbTable* table;
 		char colsoutput[500];
 		bool IsValidInput();
+		std::thread* editor;
 		bool editorIsOpen;
+		bool issueWarning;
 		content content;
 		bool hasErrmsg;
+		int pathIndex;
 		char* errmsg;
 		void abort();
 		int InDexer;

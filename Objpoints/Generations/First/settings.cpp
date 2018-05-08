@@ -51,8 +51,8 @@ void Tools::settings::output(bool results){
 }
 int Tools::settings::setPath(int index, bool newPath){
 	if (!newPath && index >= 0 && index < Paths){
-		for (inDexer = 0; fullPaths[defaultPathIndex][inDexer] != '\0'; inDexer++)
-			defaultPath[inDexer] = fullPaths[defaultPathIndex][inDexer]; defaultPath[inDexer] = '\0';
+		for (inDexer = 0; fullPaths[index][inDexer] != '\0'; inDexer++)
+			defaultPath[inDexer] = fullPaths[index][inDexer]; defaultPath[inDexer] = '\0';
 		for (inDexer = 0; defaultPath[inDexer] != '\0'; inDexer++)
 			if (defaultPath[inDexer] == '\\') rootIndex = inDexer + 1;
 		for (inDexer = rootIndex; defaultPath[inDexer] != '\0'; inDexer++)
@@ -61,8 +61,7 @@ int Tools::settings::setPath(int index, bool newPath){
 			option::validUserInputs[inDexer - rootIndex] = defaultPath[inDexer - 1] = '\0';
 		for (inDexer = 0; option::validUserInputs[inDexer] != '\0'; inDexer++)
 		if (option::validUserInputs[inDexer] == '.') option::decimalIndex = inDexer;
-		inDexer = 0; return pathLenghts[defaultPathIndex];
-	}
+		inDexer = 0; return pathLenghts[index];}
 	else if(newPath){
 		while (option::validUserInputs[inDexer] != '\0') inDexer++;
 		fullPaths[Paths] = new char[inDexer + 2];
@@ -71,8 +70,7 @@ int Tools::settings::setPath(int index, bool newPath){
 			defaultPath[inDexer] = option::validUserInputs[inDexer];}
 		defaultPath[inDexer] = fullPaths[Paths][inDexer] = '\0';
 		defaultPathIndex = Paths; pathLenghts[Paths++] = inDexer;
-		inDexer = 0; return pathLenghts[defaultPathIndex];
-	}
+		inDexer = 0; return pathLenghts[defaultPathIndex];}
 	return 0;
 }
 Tools::settings::settings(Menu Index) : option(MAX_CHARS){

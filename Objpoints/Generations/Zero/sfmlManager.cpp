@@ -37,6 +37,7 @@ bool Tools::sfmlMananger::reconstruct(int width, int height, char* image){
 	return success;
 }
 bool Tools::sfmlMananger::update(){
+
 	return true;
 }
 bool Tools::sfmlMananger::draw(){
