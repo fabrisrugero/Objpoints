@@ -15,8 +15,8 @@ void Tools::points::output(bool results){
 	if (!results)
 		std::cout << this->index << ") Create/modify points" << std::endl;
 	else{
-		 if (this->table == nullptr) this->table = new dbTable(nullptr);
-		 option::clearConsoleScreen(); if (this->table->hasErrors(this->errmsg))return abort();
+		if (this->table == nullptr) this->table = new dbTable(nullptr);
+		option::clearConsoleScreen(); if (this->table->hasErrors(this->errmsg))return abort();
 		for (this->Indexer = 0; this->Indexer < maxcolumns; this->Indexer++)
 			if (this->Indexer == id || this->Indexer == objectz) this->table->ignoredcolumns[this->Indexer] = true;
 		this->columns = this->table->initcolumns(this->colsoutput, this->setwidth);
@@ -34,9 +34,8 @@ void Tools::points::output(bool results){
 		if (results = option::keyPressed('S', 's')) this->content = content::next;
 		else if (results = option::keyPressed('W', 'w')) this->content = content::previous;
 		else if (results = (option::keyPressed('D', 'd') || option::keyPressed('A', 'a'))){
-			this->content = content::current; if (!this->editorIsOpen) {
-				settings::setPath(this->pathIndex + 1, false);
-				this->editor = new std::thread{ [=](){
+			settings::setPath(this->pathIndex + 1, false); this->content = content::current;
+			if (!this->editorIsOpen) { this->editor = new std::thread{ [=](){
 					this->window = new sfmlMananger(
 						800, 600, settings::defaultPath);
 					this->window->drawing();
@@ -65,12 +64,12 @@ Tools::points::points(Menu Index) : option(settings::MAX_CHARS){
 	this->table = nullptr;
 }
 void Tools::points::deconstruct(){
-	if (!this->editorIsOpen && 
-		this->editor != nullptr) {
+	if (this->editor != nullptr) {
 		this->editor->join();
 		delete this->editor;
-		this->editor = nullptr;
-	}
+		this->editor = nullptr;}
+	if (this->table != nullptr)
+		delete this->table;
 }
 void Tools::points::reconstruct(){
 	this->issueWarning = false;
