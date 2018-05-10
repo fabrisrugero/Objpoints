@@ -4,22 +4,34 @@
 #include "../First/settings.h"
 namespace Tools{
 	class sfmlMananger{
+		double centerycoord(double y, int height);
+		double centerxcoord(double x, int width);
+		const int maxFileLenght = 150;
 		void extractName(char* path);
+		const int bottom_chars = 13;
+		int reconstruct(int points);
+		const char* bottom_corner;
 		sf::RenderWindow *canvas;
 		Tools::dbTable* table;
+		sf::Sprite* cartoons;
 		bool canvasIsCreated;
 		sf::VideoMode* mode;
 		double** pointsList;
 		void DrawTexture();
 		sf::Sprite cartoon;
+		int* halfOfHeight2;
 		void DrawPoints();
+		sf::Texture* texs;
+		int* halfOfWidth2;
 		void GetPoints();
+		void GetImages();
 		sf::Event *event;
+		int halfOfHeight;
+		int halfOfWidth;
 		sf::Texture tex;
 		bool hasPoints;
-		bool IsVisible;
-		char* filename;
-		int fileLenght;
+		int imageIndex;
+		char** filenames;
 		bool hasErrmsg;
 		char* results;
 		bool success;
@@ -27,14 +39,13 @@ namespace Tools{
 		int Indexer;
 		int points;
 		int height;
+		int images;
 		int width;
 		int x, y;
 	public:
-		bool reconstruct(int width, int height, char* image);
-		sfmlMananger(int width, int height, char* image);
+		void drawing(bool editable);
 		~sfmlMananger();
 		sfmlMananger();
-		void drawing();
 	};
 }
 

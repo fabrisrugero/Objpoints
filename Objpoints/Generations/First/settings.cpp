@@ -36,9 +36,15 @@ void Tools::settings::output(bool results){
 				this->lines[this->interation] = '\0'; std::cout << std::setfill(' ') << std::setw(63) << std::left << this->lines;
 				if (defaultPathIndex != this->Indexer && !this->removePaths[this->Indexer] ) std::cout << "|          |";
 				else if (this->removePaths[this->Indexer]) std::cout << "|< deleted |"; else std::cout << "|< default |";
-				if ((this->Indexer + 1) % 2 == 0 || this->Indexer + 1 == Paths)
-					for (this->indexer = 0; this->indexer < 41; this->indexer++){
-					if (this->indexer == 0) std::cout << std::endl; else std::cout << "--";}
+				for (this->indexer = 0; this->fullPaths[this->Indexer + 1][this->indexer] != '\0'; this->indexer++){
+					if (this->fullPaths[this->Indexer + 1][this->indexer] == '.'){
+						if ((this->fullPaths[this->Indexer + 1][this->indexer + 1] == 'd'
+							&& this->fullPaths[this->Indexer + 1][this->indexer + 2] == 'b'
+							&& this->fullPaths[this->Indexer + 1][this->indexer + 3] == '\0') 
+							|| this->Indexer + 1 == Paths){ for (this->indexer = 0; this->indexer < 41; this->indexer++){
+								if (this->indexer == 0) std::cout << std::endl; else std::cout << "--";}break;}
+					}
+				}
 			}
 		}
 		if (!this->success) 
