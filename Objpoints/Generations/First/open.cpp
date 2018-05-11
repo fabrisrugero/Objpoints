@@ -57,7 +57,7 @@ void Tools::open::output(bool results){
 			std::cout << "close the Image window first, Once Image window closed '"
 			<< "\npress " << this->index << " to try again or enter to exit to main menu" << std::endl;
 		else{
-			if (this->IsNewPath) settings::setPath(0, true);
+			if (this->IsNewPath) settings::setPath(true);
 			this->threadIsBusy = true;  std::cout << "opened '" << option::validUserInputs << "'"
 				<< "\npress " << this->index << " to open a new image or database or press enter to exit" << std::endl;
 		}
@@ -157,8 +157,9 @@ bool Tools::open::opendb(){
 			this->validUserInputs[this->Indexer] = option::validUserInputs[this->Indexer];
 		this->validUserInputs[this->Indexer] = '\0'; 
 		this->thread = new std::thread{ [=](){
-			this->window = new sfmlMananger(800, 600, this->validUserInputs);
-			this->window->drawing();
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			this->window = new sfmlMananger();
+			this->window->drawing(false);
 			delete this->window;
 			this->window = nullptr;
 			this->threadIsBusy = false;

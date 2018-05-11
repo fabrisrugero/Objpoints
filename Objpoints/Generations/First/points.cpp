@@ -36,12 +36,12 @@ void Tools::points::output(bool results){
 		else if (results = (option::keyPressed('D', 'd') || option::keyPressed('A', 'a'))){
 			settings::setPath(this->pathIndex + 1, false); this->content = content::current;
 			if (!this->editorIsOpen) { this->editor = new std::thread{ [=](){
-					this->window = new sfmlMananger(
-						800, 600, settings::defaultPath);
-					this->window->drawing();
-					delete this->window;
-					this->window = nullptr;
-					this->editorIsOpen = false;
+				std::this_thread::sleep_for(std::chrono::milliseconds(500));
+				this->window = new sfmlMananger();
+				this->window->drawing(true);
+				delete this->window;
+				this->window = nullptr;
+				this->editorIsOpen = false;
 				} }; this->editorIsOpen = true;}}
 		if (results) return this->output(true);
 		else if (this->editorIsOpen) return this->output(this->issueWarning = true);

@@ -58,7 +58,8 @@ void Tools::settings::output(bool results){
 int Tools::settings::setPath(int index, bool newPath){
 	if (!newPath && index >= 0 && index < Paths){
 		for (inDexer = 0; fullPaths[index][inDexer] != '\0'; inDexer++)
-			defaultPath[inDexer] = fullPaths[index][inDexer]; defaultPath[inDexer] = '\0';
+			defaultPath[inDexer] = fullPaths[index][inDexer]; defaultPath[inDexer] = '\0'; 
+		if (option::validUserInputs == nullptr) return pathLenghts[index];
 		for (inDexer = 0; defaultPath[inDexer] != '\0'; inDexer++)
 			if (defaultPath[inDexer] == '\\') rootIndex = inDexer + 1;
 		for (inDexer = rootIndex; defaultPath[inDexer] != '\0'; inDexer++)

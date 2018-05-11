@@ -33,6 +33,7 @@ Tools::option::option(int buffersize){
 void Tools::option::removeKeysPressed(){
 	if (userInputs == nullptr) return;
 	delete[] validUserInputs;
+	validUserInputs = nullptr;
 	delete[] userInputs;
 	validCharIndex = 0;
 	hasDecimal = false;
