@@ -4,22 +4,21 @@
 #include "../First/settings.h"
 namespace Tools{
 	class sfmlMananger{
-		double centerycoord(double y, int height);
-		double centerxcoord(double x, int width);
 		const int maxFileLenght = 150;
 		void extractName(char* path);
 		const int bottom_chars = 13;
 		int reconstruct(int points);
 		const char* bottom_corner;
+		sf::CircleShape **circles;
 		sf::RenderWindow *canvas;
 		Tools::dbTable* table;
 		sf::Sprite* cartoons;
 		bool canvasIsCreated;
 		sf::VideoMode* mode;
-		double** pointsList;
+		float** pointsList;
 		int* halfOfHeight2;
+		void ModifyPoint();
 		void DrawImages();
-		void DrawPoints();
 		sf::Texture* texs;
 		int* halfOfWidth2;
 		char** filenames;

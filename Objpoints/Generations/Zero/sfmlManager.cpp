@@ -6,13 +6,14 @@ Tools::sfmlMananger::sfmlMananger(){
 	this->height = 937;
 	this->imageIndex = 0;
 	this->hasPoints = false;
+	this->circles = nullptr;
 	this->results = new char[15];
 	this->event = new sf::Event();
 	this->images = settings::grps;
-	this->pointsList = new double*[3];
-	this->pointsList[0] = new double[1]();
-	this->pointsList[1] = new double[1]();
-	this->pointsList[1] = new double[1]();
+	this->pointsList = new float*[3];
+	this->pointsList[One] = nullptr;
+	this->pointsList[Two] = nullptr;
+	this->pointsList[Three] = nullptr;
 	this->canvas = new sf::RenderWindow();
 	this->bottom_corner = "bottom_corner";
 	this->x = new float[this->images + 1]();
@@ -65,11 +66,11 @@ void Tools::sfmlMananger::GetPoints(){
 		if (!(this->hasErrmsg = this->table->hasErrors()) && this->points > 0){
 			for (this->indexer = 0; this->indexer < this->points; this->indexer++){
 				this->table->select(this->results, pointx, this->indexer);
-				this->pointsList[One][this->indexer] = atof(this->results);
+				this->pointsList[One][this->indexer] = strtof(this->results, nullptr);
 				this->table->select(this->results, pointy, this->indexer);
-				this->pointsList[Two][this->indexer] = atof(this->results);
+				this->pointsList[Two][this->indexer] = strtof(this->results, nullptr);
 				this->table->select(this->results, radius, this->indexer);
-				this->pointsList[Three][this->indexer] = atof(this->results);}
+				this->pointsList[Three][this->indexer] = strtof(this->results, nullptr);}
 			for (this->indexer = 0; this->indexer < this->points; this->indexer++){
 				this->table->select(this->results, pointz, this->indexer);
 				for (this->Indexer = 0; this->results[this->Indexer] != '\0'; this->Indexer++)
@@ -78,9 +79,13 @@ void Tools::sfmlMananger::GetPoints(){
 				this->halfOfWidth2[this->indexer] = static_cast<int>(std::round(this->pointsList[One][this->indexer] / 2));
 				this->halfOfHeight2[this->indexer] = static_cast<int>(std::round(this->pointsList[Two][this->indexer] / 2)); break;}
 			for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-				this->pointsList[One][this->indexer] += static_cast<double>(this->halfOfWidth - this->halfOfWidth2[this->indexer]);
-				this->pointsList[Two][this->indexer] += static_cast<double>(this->halfOfHeight - this->halfOfHeight2[this->indexer]);}
-			this->table->select(this->results, objectz, 0); 
+				this->pointsList[One][this->indexer] += static_cast<float>(this->halfOfWidth - this->halfOfWidth2[this->indexer]);
+				this->pointsList[Two][this->indexer] += static_cast<float>(this->halfOfHeight - this->halfOfHeight2[this->indexer]);}
+			for (this->indexer = 0; this->indexer < this->points; this->indexer++){
+				this->circles[this->indexer]->setPosition(this->pointsList[One][this->indexer], this->pointsList[Two][this->indexer]);
+				this->circles[this->indexer]->setRadius(this->pointsList[Three][this->indexer] > 0 ? this->pointsList[Three][this->indexer] : 1);
+				this->circles[this->indexer]->setFillColor(sf::Color::Green);}
+			 this->table->select(this->results, objectz, 0);
 			for (this->Indexer = 0; this->Indexer < settings::grps; this->Indexer++){
 				for (this->indexer = 0; this->results[this->indexer] != '\0'; this->indexer++)
 					if (settings::groups[this->Indexer][this->indexer] != this->results[this->indexer]) break;
@@ -89,18 +94,19 @@ void Tools::sfmlMananger::GetPoints(){
 		}
 	}
 }
-void Tools::sfmlMananger::DrawPoints(){
-
+void Tools::sfmlMananger::ModifyPoint(){
 
 }
 void Tools::sfmlMananger::DrawImages(){
 	this->cartoons[this->images].setPosition(
 		this->x[this->images], this->y[this->images]);	
 	this->canvas->draw(this->cartoons[this->images]);
-	if (this->images == 0 || this->imageIndex < 0) return;
-	this->cartoons[this->imageIndex].setPosition(
-		this->x[this->imageIndex], this->y[this->imageIndex]);
-	this->canvas->draw(this->cartoons[this->imageIndex]);
+	if (this->images != 0 && this->imageIndex >= 0){
+		this->cartoons[this->imageIndex].setPosition(
+			this->x[this->imageIndex], this->y[this->imageIndex]);
+		this->canvas->draw(this->cartoons[this->imageIndex]);}
+	for (this->indexer = 0; this->indexer < this->points; this->indexer++)
+		this->canvas->draw(*this->circles[this->indexer]);
 };
 void Tools::sfmlMananger::drawing(bool editable){
 	this->canvas->create(*this->mode, "blankwindow");
@@ -111,17 +117,19 @@ void Tools::sfmlMananger::drawing(bool editable){
 				 this->canvas->close();		
 		this->GetPoints();
 		this->DrawImages();
-		this->DrawPoints();
+		this->ModifyPoint();
 		this->canvas->display();
 	}
 }
 int  Tools::sfmlMananger::reconstruct(int points){
-	if (points == 0) return points;
 	// saving changes logic to db goes here.
-	for (this->indexer = 0; this->indexer < 3; this->indexer++)
-		delete[] this->pointsList[this->indexer];
-	for (this->indexer = 0; this->indexer < 3; this->indexer++)
-		this->pointsList[this->indexer] = new double[points]();
+	for (this->indexer = 0; this->indexer < Four && this->points > 0; this->indexer++)
+	{delete[] this->pointsList[this->indexer]; this->pointsList[this->indexer] = nullptr;}
+	for (this->indexer = 0; this->indexer < this->points; this->indexer++) delete this->circles[this->indexer];
+	if (this->points > 0) { delete[] this->circles; this->circles = nullptr; } if (points == 0) return points;
+	for (this->indexer = 0; this->indexer < Four; this->indexer++)
+		this->pointsList[this->indexer] = new float[points]();
+	this->circles = new sf::CircleShape*[points]; 
 	return points;
 }
 void Tools::sfmlMananger::extractName(char* path){
