@@ -12,7 +12,8 @@ namespace Tools{
 		sf::CircleShape **circles;
 		sf::RenderWindow *canvas;
 		Tools::dbTable* table;
-		sf::Sprite* cartoons;
+		sf::Image** sfImages;
+		sf::Sprite** cartoons;
 		bool canvasIsCreated;
 		sf::VideoMode* mode;
 		float** pointsList;
@@ -20,7 +21,7 @@ namespace Tools{
 		void ModifyPoint();
 		void centerImage();
 		void DrawImages();
-		sf::Texture* texs;
+		sf::Texture** texs;
 		int* halfOfWidth2;
 		char** filenames;
 		void GetPoints();

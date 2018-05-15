@@ -77,19 +77,15 @@ bool Tools::open::IsValidInput(){
 			this->indeXer = strlen(option::validUserInputs); bytes += this->indeXer; wchar_t* wtext = new wchar_t[bytes + 1];
 			for (this->Indexer = 0; this->Indexer < this->indeXer; this->Indexer++)
 				_wtext[bytes - this->indeXer + this->Indexer] = option::validUserInputs[this->Indexer];
-			_wtext[bytes - this->indeXer + this->Indexer] = '\0';
+			_wtext[bytes - this->indeXer + this->Indexer] = '\0'; 
 			for (this->Indexer = 0; _wtext[this->Indexer] != '\0'; this->Indexer++)
 				wtext[this->Indexer] = _wtext[this->Indexer];
 			wtext[this->Indexer] = '\0'; delete[] _wtext;
 			this->IsDbImage = this->decimalplaces > 2; 
 			DWORD dwAttrib = GetFileAttributes(wtext);
-			if ((dwAttrib != INVALID_FILE_ATTRIBUTES
-				&&!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY))){
-				delete[] option::validUserInputs; 
-				option::validUserInputs = new char[bytes + 1]; size_t outSize;
-				wcstombs_s(&outSize, option::validUserInputs, bytes + 1, wtext, bytes + 1);
-				delete[] wtext;
-				return true;
+			if ((dwAttrib != INVALID_FILE_ATTRIBUTES &&!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY))){ 
+				size_t outSize; wcstombs_s(&outSize, option::validUserInputs, bytes + 1, wtext, bytes + 1);
+				delete[] wtext; return true;
 			}
 			else{
 				delete[] wtext;

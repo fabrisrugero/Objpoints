@@ -14,7 +14,6 @@ Tools::sfmlMananger::sfmlMananger(){
 	this->imageIndex = 0;
 	this->hasPoints = false;
 	this->circles = nullptr;
-	this->results = new char[15];
 	this->event = new sf::Event();
 	this->images = settings::grps;
 	this->pointsList = new float*[3];
@@ -26,24 +25,31 @@ Tools::sfmlMananger::sfmlMananger(){
 	this->x = new float[this->images + 1]();
 	this->y = new float[this->images + 1]();
 	this->filenames = new char*[this->images];
-	this->texs = new sf::Texture[this->images + 1];
+	this->results = new char[settings::MAX_CHARS];
+	this->texs = new sf::Texture*[this->images + 1];
 	this->halfOfWidth2 = new int[this->images + 1]();
 	this->halfOfHeight2 = new int[this->images + 1]();
-	this->cartoons = new sf::Sprite[this->images + 1];
+	this->sfImages = new sf::Image*[this->images + 1];
+	this->cartoons = new sf::Sprite*[this->images + 1];
 	this->mode = new sf::VideoMode(this->width, this->height);
 	this->halfOfWidth = static_cast<int>(std::round(this->width / 2));
 	this->halfOfHeight = static_cast<int>(std::round(this->height / 2));
+	for (this->inDexer = 0; this->inDexer < this->images; this->inDexer++)
+	{this->texs[this->inDexer] = new sf::Texture();this->sfImages[this->inDexer] = new sf::Image();this->cartoons[this->inDexer] = new sf::Sprite();}
+	this->texs[this->images] = new sf::Texture(); this->cartoons[this->images] = new sf::Sprite(); this->sfImages[this->images] = new sf::Image();
 }
 Tools::sfmlMananger::~sfmlMananger(){
-	for (this->indexer = 0; this->indexer < this->images; this->indexer++)
-		delete[] this->filenames[this->indexer];
-	for (this->indexer = 0; this->indexer < 3; this->indexer++)
-		delete[] this->pointsList[this->indexer];
+	for (this->indexer = 0; this->indexer < 3; this->indexer++) delete[] this->pointsList[this->indexer];
+	for (this->indexer = 0; this->indexer < this->images; this->indexer++) delete[] this->filenames[this->indexer];
+	for (this->indexer = 0; this->indexer < this->images; this->indexer++) delete this->texs[this->indexer]; delete this->texs[this->indexer];
+	for (this->indexer = 0; this->indexer < this->images; this->indexer++) delete this->sfImages[this->indexer]; delete this->sfImages[this->indexer];
+	for (this->indexer = 0; this->indexer < this->images; this->indexer++) delete this->cartoons[this->indexer]; delete this->cartoons[this->indexer];
 	delete[] this->halfOfHeight2;
 	delete[] this->halfOfWidth2;
 	delete[] this->pointsList;
 	delete[] this->filenames;
-    delete[] this->cartoons;
+	delete[] this->sfImages;
+	delete[] this->cartoons;
 	delete[] this->results;
 	delete[] this->texs;
 	delete this->canvas;
@@ -52,21 +58,17 @@ Tools::sfmlMananger::~sfmlMananger(){
 	delete[] this->y;
 	delete[] this->x;
 }
-void Tools::sfmlMananger::centerImage(){
-	this->halfOfHeight2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[Two][this->indexer] / 2));
-	this->halfOfWidth2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[One][this->indexer] / 2));
-	this->y[this->imageIndex] += static_cast<float>(this->halfOfHeight - this->halfOfHeight2[this->imageIndex]);
-	this->x[this->imageIndex] += static_cast<float>(this->halfOfWidth - this->halfOfWidth2[this->imageIndex]);
-}
 void Tools::sfmlMananger::GetImages(){
 	for (this->imageIndex = 0; this->imageIndex < this->images; this->imageIndex++){
 		if (settings::setPath(settings::defaultPathIndex + this->imageIndex + 1) > 0 &&
-			!this->texs[this->imageIndex].loadFromFile(settings::defaultPath))
-			this->texs[this->imageIndex].loadFromFile("missing.png");
-		this->cartoons[this->imageIndex].setTexture(this->texs[this->imageIndex]);
-		this->extractName(settings::defaultPath);} this->imageIndex = -1;
-	this->texs[this->images].loadFromFile("Grid.jpg");
-	this->cartoons[this->images].setTexture(this->texs[this->images]);
+			!this->sfImages[this->imageIndex]->loadFromFile(settings::defaultPath))
+			this->sfImages[this->imageIndex]->loadFromFile("missing.png");
+		this->texs[this->imageIndex]->loadFromImage(*this->sfImages[this->imageIndex]);
+		this->cartoons[this->imageIndex]->setTexture(*this->texs[this->imageIndex]);
+		this->extractName(settings::defaultPath);} 
+	this->imageIndex = -1; this->sfImages[this->images]->loadFromFile("Grid.jpg");
+	this->texs[this->images]->loadFromImage(*this->sfImages[this->images]);
+	this->cartoons[this->images]->setTexture(*this->texs[this->images]);
 }
 void Tools::sfmlMananger::GetPoints(){
 	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Return) && this->hasPoints) this->hasPoints = false;
@@ -102,20 +104,26 @@ void Tools::sfmlMananger::GetPoints(){
 			this->circles[this->indexer]->setPosition(this->pointsList[One][this->indexer], this->pointsList[Two][this->indexer]);}}
 	else if (this->imageIndex == -1 && this->images > 0) this->imageIndex = 0;}
 }
-void Tools::sfmlMananger::ModifyPoint(){
-
-}
 void Tools::sfmlMananger::DrawImages(){
-	this->cartoons[this->images].setPosition(
+	this->cartoons[this->images]->setPosition(
 		this->x[this->images], this->y[this->images]);	
-	this->canvas->draw(this->cartoons[this->images]);
+	this->canvas->draw(*this->cartoons[this->images]);
 	if (this->images != 0 && this->imageIndex >= 0){
-		this->cartoons[this->imageIndex].setPosition(
+		this->cartoons[this->imageIndex]->setPosition(
 			this->x[this->imageIndex], this->y[this->imageIndex]);
-		this->canvas->draw(this->cartoons[this->imageIndex]);}
+		this->canvas->draw(*this->cartoons[this->imageIndex]);}
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++)
 		this->canvas->draw(*this->circles[this->indexer]);
 };
+void Tools::sfmlMananger::centerImage(){
+	this->halfOfHeight2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[Two][this->indexer] / 2));
+	this->halfOfWidth2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[One][this->indexer] / 2));
+	this->y[this->imageIndex] = static_cast<float>(this->halfOfHeight - this->halfOfHeight2[this->imageIndex]);
+	this->x[this->imageIndex] = static_cast<float>(this->halfOfWidth - this->halfOfWidth2[this->imageIndex]);
+}
+void Tools::sfmlMananger::ModifyPoint(){
+
+}
 void Tools::sfmlMananger::drawing(bool editable){
 	this->canvas->create(*this->mode, "blankwindow");
 	this->canvas->setFramerateLimit(60); this->GetImages();
@@ -147,9 +155,13 @@ void Tools::sfmlMananger::extractName(char* path){
 	char *dir = new char[settings::MAX_CHARS + 100];
 	char *ext = new char[settings::MAX_CHARS + 100];
 	char * drive = new char[settings::MAX_CHARS + 100];
-	this->filenames[this->imageIndex] = new char[settings::MAX_CHARS + 100]; _splitpath_s(path, drive, 
-		dOfElemts, dir, dirOfElemts,this->filenames[this->imageIndex], this->maxFileLenght, ext, extOfElemts);
-	delete[] dir; delete[] ext; delete[] drive;
+	char* filename = new char[settings::MAX_CHARS + 100];
+	this->filenames[this->imageIndex] = new char[settings::MAX_CHARS + 100]; _splitpath_s(path,
+		drive, dOfElemts, dir, dirOfElemts, filename, this->maxFileLenght, ext, extOfElemts);
+	for (this->indexer = 0; filename[this->indexer] != '\0'; this->indexer++)
+		this->filenames[this->imageIndex][this->indexer] = filename[this->indexer];
+	this->filenames[this->imageIndex][this->indexer] = filename[this->indexer];
+	delete[] dir; delete[] ext; delete[] drive; delete[] filename;
 }
 
 

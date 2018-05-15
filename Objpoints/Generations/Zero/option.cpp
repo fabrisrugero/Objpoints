@@ -12,10 +12,10 @@ bool Tools::option::update(){
 int Tools::option::validCharIndex = 0;
 char Tools::option::_keyPressed = '\0';
 bool Tools::option::hasDecimal = false;
-char* Tools::option::userInputs = nullptr;
 char* Tools::option::validInputs = nullptr;
-char* Tools::option::validUserInputs = nullptr;
 const char* Tools::option::escapes = "_@-\\//:";
+char* Tools::option::userInputs = new char[max_size];
+char* Tools::option::validUserInputs = new char[max_size];
 const char* Tools::option::alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 Tools::option::option(int buffersize){
 	this->buffersize = buffersize;
@@ -32,12 +32,11 @@ Tools::option::option(int buffersize){
 }
 void Tools::option::removeKeysPressed(){
 	if (userInputs == nullptr) return;
-	delete[] validUserInputs;
-	validUserInputs = nullptr;
-	delete[] userInputs;
-	validCharIndex = 0;
-	hasDecimal = false;
-	decimalIndex = -1;
+	for (indexer = 0; indexer < max_size; indexer++)
+		userInputs[indexer] = '\0';
+	for (indexer = 0; indexer < max_size; indexer++)
+		validUserInputs[indexer] = '\0';
+	validCharIndex = 0; hasDecimal = false; decimalIndex = -1;
 };
 bool Tools::option::IsValidInput(){
 	if (!hasDecimal && validCharIndex > 0) return true;
@@ -45,8 +44,6 @@ bool Tools::option::IsValidInput(){
 	else return false;
 }
 int Tools::option::processKeysPressed(int maxchars){
-	validUserInputs = new char[maxchars + 1];
-	userInputs = new char[maxchars];
 	while (std::cin.get(_keyPressed)){
 		if (charIndex < maxchars && _keyPressed != '\n')
 			userInputs[charIndex++] = _keyPressed;
