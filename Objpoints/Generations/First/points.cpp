@@ -34,7 +34,7 @@ void Tools::points::output(bool results){
 		if (results = option::keyPressed('S', 's')) this->content = content::next;
 		else if (results = option::keyPressed('W', 'w')) this->content = content::previous;
 		else if (results = (option::keyPressed('D', 'd') || option::keyPressed('A', 'a'))){
-			settings::setPath(this->pathIndex + 1, false); this->content = content::current;
+			settings::setPath(settings::defaultPathIndex + 1, false); this->content = content::current;
 			if (!this->editorIsOpen) { this->editor = new std::thread{ [=](){
 				std::this_thread::sleep_for(std::chrono::milliseconds(500));
 				this->window = new sfmlMananger();
@@ -50,9 +50,9 @@ void Tools::points::output(bool results){
 }
 bool Tools::points::IsValidInput(){
 	if (option::IsValidInput() && option::decimalIndex < 0)
-		return settings::setPath(this->pathIndex = atoi(option::validUserInputs), false) > 0;
+		return settings::setPath(atoi(option::validUserInputs), false) > 0;
 	else 
-		return settings::setPath(this->pathIndex = settings::defaultPathIndex, false) > 0;
+		return settings::setPath(settings::defaultPathIndex, false) > 0;
 	return false;
 };
 Tools::points::points(Menu Index) : option(settings::MAX_CHARS){

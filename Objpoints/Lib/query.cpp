@@ -147,20 +147,17 @@ void Tools::query::insertIntoTable(char* sql, const char *table, int namelenght)
 void Tools::query::selectFromTable(char* sql, const char *table, int lenght, int column){
 	this->clearbuffer();
 	if (lenght == 0) lenght = strlen(table);
-	this->concantenate("SELECT ", 7, table, 0);
+	this->concantenate("SELECT ", 7, nullptr, 0);
 	for (int colum = 0; colum < this->max_columns; colum++){
 		if (this->types_lenght[colum] == 0 || colum == column) continue;
-		this->concantenate(this->types[colum], this->types_lenght[colum], ", ", 2);
-	}
+		this->concantenate(this->types[colum], this->types_lenght[colum], ", ", 2);}
 	if (this->position > 7) this->position -= 2;
-	else this->concantenate(table, 0, "*", 1);
-	this->concantenate(table, 0, " FROM ", 6);
-	if (column < 0) this->concantenate(table, lenght, ";", 1);
-	else{
-		this->concantenate(table, lenght, " WHERE ", 7);
+	else this->concantenate(nullptr, 0, "*", 1);
+	this->concantenate(nullptr, 0, " FROM ", 6);
+	if (column < 0) this->concantenate(table, lenght, " ORDER BY id ASC;", 17);
+	else{ this->concantenate(table, lenght, " WHERE ", 7);
 		this->concantenate(this->types[column], this->types_lenght[column], " = '", 4);
-		this->concantenate(this->values[column], this->values_lenght[column], "';", 2);
-	}
+		this->concantenate(this->values[column], this->values_lenght[column], "' ORDER BY id ASC;", 18);}
 	for (this->indexer = 0; this->indexer < this->query_size; this->indexer++)
 		sql[this->indexer] = this->querychararcters[this->indexer];
 	this->clearbuffer(false);

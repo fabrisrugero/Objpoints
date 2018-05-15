@@ -18,6 +18,7 @@ namespace Tools{
 		float** pointsList;
 		int* halfOfHeight2;
 		void ModifyPoint();
+		void centerImage();
 		void DrawImages();
 		sf::Texture* texs;
 		int* halfOfWidth2;
@@ -31,8 +32,11 @@ namespace Tools{
 		int imageIndex;
 		bool hasErrmsg;
 		char* results;
+		void imgdex();
+		float floater;
 		bool success;
 		float *x, *y;
+		int inDexer;
 		int indexer;
 		int Indexer;
 		int points;

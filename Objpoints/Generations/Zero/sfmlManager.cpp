@@ -1,5 +1,12 @@
 #include <stdlib.h>
 #include "sfmlManager.h"
+void Tools::sfmlMananger::imgdex(){
+	for (this->Indexer = 0; this->Indexer < settings::grps; this->Indexer++){
+		for (this->inDexer = 0; this->results[this->inDexer] != '\0'; this->inDexer++)
+		{if (settings::groups[this->Indexer][this->inDexer] != this->results[this->inDexer]) break;}
+		if (this->results[this->inDexer] == '\0') { this->imageIndex = this->Indexer; break; } else this->imageIndex = -1;
+	}	if (this->imageIndex >= 0) this->canvas->setTitle(this->filenames[this->imageIndex]);
+}
 Tools::sfmlMananger::sfmlMananger(){
 	this->points = 0;
 	this->width = 939;
@@ -20,6 +27,8 @@ Tools::sfmlMananger::sfmlMananger(){
 	this->y = new float[this->images + 1]();
 	this->filenames = new char*[this->images];
 	this->texs = new sf::Texture[this->images + 1];
+	this->halfOfWidth2 = new int[this->images + 1]();
+	this->halfOfHeight2 = new int[this->images + 1]();
 	this->cartoons = new sf::Sprite[this->images + 1];
 	this->mode = new sf::VideoMode(this->width, this->height);
 	this->halfOfWidth = static_cast<int>(std::round(this->width / 2));
@@ -34,7 +43,7 @@ Tools::sfmlMananger::~sfmlMananger(){
 	delete[] this->halfOfWidth2;
 	delete[] this->pointsList;
 	delete[] this->filenames;
-	delete[] this->cartoons;
+    delete[] this->cartoons;
 	delete[] this->results;
 	delete[] this->texs;
 	delete this->canvas;
@@ -43,56 +52,55 @@ Tools::sfmlMananger::~sfmlMananger(){
 	delete[] this->y;
 	delete[] this->x;
 }
+void Tools::sfmlMananger::centerImage(){
+	this->halfOfHeight2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[Two][this->indexer] / 2));
+	this->halfOfWidth2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[One][this->indexer] / 2));
+	this->y[this->imageIndex] += static_cast<float>(this->halfOfHeight - this->halfOfHeight2[this->imageIndex]);
+	this->x[this->imageIndex] += static_cast<float>(this->halfOfWidth - this->halfOfWidth2[this->imageIndex]);
+}
 void Tools::sfmlMananger::GetImages(){
 	for (this->imageIndex = 0; this->imageIndex < this->images; this->imageIndex++){
-		if (settings::setPath(settings::defaultPathIndex) > 0 &&
+		if (settings::setPath(settings::defaultPathIndex + this->imageIndex + 1) > 0 &&
 			!this->texs[this->imageIndex].loadFromFile(settings::defaultPath))
 			this->texs[this->imageIndex].loadFromFile("missing.png");
-		this->cartoons[this->imageIndex].setTexture(this->texs[this->imageIndex]); 
-		this->Indexer = this->halfOfHeight - this->halfOfHeight2[this->imageIndex];
-		this->indexer = this->halfOfWidth - this->halfOfWidth2[this->imageIndex];
-		this->x[this->imageIndex] += static_cast<float>(this->indexer);
-		this->y[this->imageIndex] += static_cast<float>(this->Indexer);
-		this->extractName(settings::defaultPath);}
+		this->cartoons[this->imageIndex].setTexture(this->texs[this->imageIndex]);
+		this->extractName(settings::defaultPath);} this->imageIndex = -1;
 	this->texs[this->images].loadFromFile("Grid.jpg");
 	this->cartoons[this->images].setTexture(this->texs[this->images]);
 }
 void Tools::sfmlMananger::GetPoints(){
 	if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Return) && this->hasPoints) this->hasPoints = false;
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return) && !this->hasPoints){ this->hasPoints = true;
-		if (this->table == nullptr) this->table = new dbTable(nullptr);
-		if (!(this->hasErrmsg = this->table->hasErrors()))
+	if (settings::setPath(settings::defaultPathIndex, false) > 0 && 
+		this->table == nullptr) this->table = new dbTable(nullptr);
+	if (this->table != nullptr && !(this->hasErrmsg = this->table->hasErrors()))
 			this->points = this->reconstruct(this->table->select(content::current));
-		if (!(this->hasErrmsg = this->table->hasErrors()) && this->points > 0){
-			for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-				this->table->select(this->results, pointx, this->indexer);
-				this->pointsList[One][this->indexer] = strtof(this->results, nullptr);
-				this->table->select(this->results, pointy, this->indexer);
-				this->pointsList[Two][this->indexer] = strtof(this->results, nullptr);
-				this->table->select(this->results, radius, this->indexer);
-				this->pointsList[Three][this->indexer] = strtof(this->results, nullptr);}
-			for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-				this->table->select(this->results, pointz, this->indexer);
-				for (this->Indexer = 0; this->results[this->Indexer] != '\0'; this->Indexer++)
-					if (this->results[this->Indexer] != this->bottom_corner[this->Indexer]) break; 
-				if (this->bottom_chars != this->Indexer) continue;
-				this->halfOfWidth2[this->indexer] = static_cast<int>(std::round(this->pointsList[One][this->indexer] / 2));
-				this->halfOfHeight2[this->indexer] = static_cast<int>(std::round(this->pointsList[Two][this->indexer] / 2)); break;}
-			for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-				this->pointsList[One][this->indexer] += static_cast<float>(this->halfOfWidth - this->halfOfWidth2[this->indexer]);
-				this->pointsList[Two][this->indexer] += static_cast<float>(this->halfOfHeight - this->halfOfHeight2[this->indexer]);}
-			for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-				this->circles[this->indexer]->setPosition(this->pointsList[One][this->indexer], this->pointsList[Two][this->indexer]);
-				this->circles[this->indexer]->setRadius(this->pointsList[Three][this->indexer] > 0 ? this->pointsList[Three][this->indexer] : 1);
-				this->circles[this->indexer]->setFillColor(sf::Color::Green);}
-			 this->table->select(this->results, objectz, 0);
-			for (this->Indexer = 0; this->Indexer < settings::grps; this->Indexer++){
-				for (this->indexer = 0; this->results[this->indexer] != '\0'; this->indexer++)
-					if (settings::groups[this->Indexer][this->indexer] != this->results[this->indexer]) break;
-				if (this->results[this->indexer] == '\0') this->imageIndex = this->Indexer; else this->imageIndex = -1;}
-			if (this->imageIndex >= 0) this->canvas->setTitle(this->filenames[this->imageIndex]);
-		}
-	}
+	if (this->table != nullptr && !(this->hasErrmsg = this->table->hasErrors()) && this->points > 0){
+		for (this->indexer = 0; this->indexer < this->points; this->indexer++){
+			this->table->select(this->results, pointx, this->indexer);
+			this->pointsList[One][this->indexer] = strtof(this->results, nullptr);
+			this->table->select(this->results, pointy, this->indexer);
+			this->pointsList[Two][this->indexer] = strtof(this->results, nullptr);
+			this->table->select(this->results, radius, this->indexer);
+			this->pointsList[Three][this->indexer] = strtof(this->results, nullptr);}
+		for (this->indexer = 0; this->indexer < this->points; this->indexer++){
+			this->table->select(this->results, pointz, this->indexer);
+			for (this->Indexer = 0; this->results[this->Indexer] != '\0'; this->Indexer++)
+				if (this->results[this->Indexer] != this->bottom_corner[this->Indexer]) break;
+			if (this->bottom_chars != this->Indexer) continue;
+			this->table->select(this->results, objectz, 0);
+			this->imgdex(); this->centerImage(); break;}
+		for (this->indexer = 0; this->indexer < this->points; this->indexer++){
+			this->pointsList[One][this->indexer] += static_cast<float>(this->x[this->imageIndex]);
+			this->pointsList[Two][this->indexer] += static_cast<float>(this->y[this->imageIndex]);}
+		for (this->indexer = 0; this->indexer < this->points; this->indexer++){
+			this->circles[this->indexer] = new sf::CircleShape();
+			this->floater = this->pointsList[Three][this->indexer];
+			this->circles[this->indexer]->setRadius(this->floater);
+			this->circles[this->indexer]->setFillColor(sf::Color::Green);
+			this->circles[this->indexer]->setOrigin(this->floater, this->floater);
+			this->circles[this->indexer]->setPosition(this->pointsList[One][this->indexer], this->pointsList[Two][this->indexer]);}}
+	else if (this->imageIndex == -1 && this->images > 0) this->imageIndex = 0;}
 }
 void Tools::sfmlMananger::ModifyPoint(){
 
@@ -114,7 +122,7 @@ void Tools::sfmlMananger::drawing(bool editable){
 	while (this->canvas->isOpen()){ this->canvas->clear();
 		 while (this->canvas->pollEvent(*this->event))
 			 if (this->event->type == sf::Event::Closed)
-				 this->canvas->close();		
+				 this->canvas->close();
 		this->GetPoints();
 		this->DrawImages();
 		this->ModifyPoint();

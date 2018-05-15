@@ -14,7 +14,6 @@ namespace Tools{
 		bool issueWarning;
 		content content;
 		bool hasErrmsg;
-		int pathIndex;
 		char* errmsg;
 		void abort();
 		int InDexer;

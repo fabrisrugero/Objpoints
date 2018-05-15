@@ -36,12 +36,14 @@ void Tools::settings::output(bool results){
 				this->lines[this->interation] = '\0'; std::cout << std::setfill(' ') << std::setw(63) << std::left << this->lines;
 				if (defaultPathIndex != this->Indexer && !this->removePaths[this->Indexer] ) std::cout << "|          |";
 				else if (this->removePaths[this->Indexer]) std::cout << "|< deleted |"; else std::cout << "|< default |";
-				for (this->indexer = 0; this->fullPaths[this->Indexer + 1][this->indexer] != '\0'; this->indexer++){
+				if (this->Indexer + 1 == Paths)for (this->indexer = 0; this->indexer < 41; this->indexer++){
+					if (this->indexer == 0) std::cout << std::endl; else std::cout << "--";}
+				else for (this->indexer = 0; this->fullPaths[this->Indexer + 1][this->indexer] != '\0'; this->indexer++){
 					if (this->fullPaths[this->Indexer + 1][this->indexer] == '.'){
 						if ((this->fullPaths[this->Indexer + 1][this->indexer + 1] == 'd'
 							&& this->fullPaths[this->Indexer + 1][this->indexer + 2] == 'b'
 							&& this->fullPaths[this->Indexer + 1][this->indexer + 3] == '\0') 
-							|| this->Indexer + 1 == Paths){ for (this->indexer = 0; this->indexer < 41; this->indexer++){
+							){ for (this->indexer = 0; this->indexer < 41; this->indexer++){
 								if (this->indexer == 0) std::cout << std::endl; else std::cout << "--";}break;}
 					}
 				}
@@ -64,7 +66,7 @@ int Tools::settings::setPath(int index, bool newPath){
 			if (defaultPath[inDexer] == '\\') rootIndex = inDexer + 1;
 		for (inDexer = rootIndex; defaultPath[inDexer] != '\0'; inDexer++)
 			option::validUserInputs[inDexer - rootIndex] = defaultPath[inDexer];
-		option::validUserInputs[inDexer - rootIndex - 1] = 
+		if (defaultPath[inDexer - 1] == '\n') option::validUserInputs[inDexer - rootIndex - 1] =
 			option::validUserInputs[inDexer - rootIndex] = defaultPath[inDexer - 1] = '\0';
 		for (inDexer = 0; option::validUserInputs[inDexer] != '\0'; inDexer++)
 		if (option::validUserInputs[inDexer] == '.') option::decimalIndex = inDexer;
@@ -76,8 +78,8 @@ int Tools::settings::setPath(int index, bool newPath){
 			fullPaths[Paths][inDexer] = option::validUserInputs[inDexer];
 			defaultPath[inDexer] = option::validUserInputs[inDexer];}
 		defaultPath[inDexer] = fullPaths[Paths][inDexer] = '\0';
-		defaultPathIndex = Paths; pathLenghts[Paths++] = inDexer;
-		inDexer = 0; return pathLenghts[defaultPathIndex];}
+		pathLenghts[Paths++] = inDexer; inDexer = 0; 
+		return pathLenghts[defaultPathIndex];}
 	return 0;
 }
 Tools::settings::settings(Menu Index) : option(MAX_CHARS){

@@ -15,6 +15,7 @@ bool Tools::open::extMatcher(int start, int ext){
 	case 3:
 		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
 			if (option::validUserInputs[option::decimalIndex + this->Indexer + 1] != pngs[start + this->Indexer]) break;
+		if (this->Indexer == this->decimalplaces) return true;
 		for (this->Indexer = 0; this->Indexer < this->decimalplaces; this->Indexer++)
 			if (option::validUserInputs[option::decimalIndex + this->Indexer + 1] != jpgs[start + this->Indexer]) return false;
 		return true;
@@ -57,7 +58,7 @@ void Tools::open::output(bool results){
 			std::cout << "close the Image window first, Once Image window closed '"
 			<< "\npress " << this->index << " to try again or enter to exit to main menu" << std::endl;
 		else{
-			if (this->IsNewPath) settings::setPath(true);
+			if (this->IsNewPath) settings::setPath(0, true);
 			this->threadIsBusy = true;  std::cout << "opened '" << option::validUserInputs << "'"
 				<< "\npress " << this->index << " to open a new image or database or press enter to exit" << std::endl;
 		}
