@@ -27,5 +27,16 @@ namespace Tools{
 		IsPoint = 6,
 		maxcolumns
 	};
+	enum keyboard{
+		noKey,
+		altKey,
+		enterKey,
+		controlKey,
+		upArrowKey,
+		leftArrowKey,
+		downArrowKey,
+		rightArrowKey,
+		relevateKeys,
+	};
 }
 

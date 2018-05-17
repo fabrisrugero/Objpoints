@@ -4,6 +4,8 @@
 #include "../First/settings.h"
 namespace Tools{
 	class sfmlMananger{
+		int fetchFromDatabase(bool query);
+		bool keyPressed(keyboard Key);
 		const int maxFileLenght = 150;
 		void extractName(char* path);
 		const int bottom_chars = 13;
@@ -16,20 +18,23 @@ namespace Tools{
 		sf::Sprite** cartoons;
 		bool canvasIsCreated;
 		sf::VideoMode* mode;
+		bool ctrlKeyPressed;
+		bool* keysPressed;
 		float** pointsList;
 		int* halfOfHeight2;
 		void ModifyPoint();
 		void centerImage();
-		void DrawImages();
 		sf::Texture** texs;
 		int* halfOfWidth2;
+		int databaseHits;
+		int ctrlKeyHits;
+		void DrawImages();
 		char** filenames;
 		void GetPoints();
 		void GetImages();
 		sf::Event *event;
 		int halfOfHeight;
 		int halfOfWidth;
-		bool hasPoints;
 		int imageIndex;
 		bool hasErrmsg;
 		char* results;
