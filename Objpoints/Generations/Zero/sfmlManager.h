@@ -7,12 +7,17 @@ namespace Tools{
 		int fetchFromDatabase(bool query);
 		bool keyPressed(keyboard Key);
 		const int maxFileLenght = 150;
+		const int widthOfMissing = 315;
+		const int heightOfMissing = 184;
 		void extractName(char* path);
 		const int bottom_chars = 13;
 		int reconstruct(int points);
 		const char* bottom_corner;
 		sf::CircleShape **circles;
 		sf::RenderWindow *canvas;
+		const int height = 937;
+		const int width = 939;
+		char endChar;
 		Tools::dbTable* table;
 		sf::Image** sfImages;
 		sf::Sprite** cartoons;
@@ -28,6 +33,7 @@ namespace Tools{
 		int* halfOfWidth2;
 		int databaseHits;
 		int ctrlKeyHits;
+		bool* ImageMissing;
 		void DrawImages();
 		char** filenames;
 		void GetPoints();
@@ -46,9 +52,8 @@ namespace Tools{
 		int indexer;
 		int Indexer;
 		int points;
-		int height;
 		int images;
-		int width;
+
 	public:
 		void drawing(bool editable);
 		~sfmlMananger();

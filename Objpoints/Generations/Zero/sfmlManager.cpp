@@ -10,9 +10,8 @@ void Tools::sfmlMananger::imgdex(){
 }
 Tools::sfmlMananger::sfmlMananger(){
 	this->points = 0;
-	this->width = 939;
-	this->height = 937;
 	this->imageIndex = 0;
+	this->endChar = '\0';
 	this->ctrlKeyHits = 0;
 	this->databaseHits = 0;
 	this->circles = nullptr;
@@ -27,6 +26,7 @@ Tools::sfmlMananger::sfmlMananger(){
 	this->bottom_corner = "bottom_corner";
 	this->x = new float[this->images + 1]();
 	this->y = new float[this->images + 1]();
+	this->ImageMissing = new bool[images]();
 	this->filenames = new char*[this->images];
 	this->keysPressed = new bool[relevateKeys]();
 	this->results = new char[settings::MAX_CHARS];
@@ -49,6 +49,7 @@ Tools::sfmlMananger::~sfmlMananger(){
 	for (this->indexer = 0; this->indexer < this->images; this->indexer++) delete[] this->filenames[this->indexer];
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++) delete this->circles[this->indexer];
 	for (this->indexer = 0; this->indexer < 3; this->indexer++) delete[] this->pointsList[this->indexer];
+	if (this->images > 0) delete[] this->ImageMissing;
 	if (this->points > 0) delete[] this->circles; 
 	delete[] this->halfOfHeight2;
 	delete[] this->halfOfWidth2;
@@ -66,9 +67,9 @@ Tools::sfmlMananger::~sfmlMananger(){
 }
 void Tools::sfmlMananger::GetImages(){
 	for (this->imageIndex = 0; this->imageIndex < this->images; this->imageIndex++){
-		if (settings::setPath(settings::defaultPathIndex + this->imageIndex + 1) > 0 &&
-			!this->sfImages[this->imageIndex]->loadFromFile(settings::defaultPath))
-			this->sfImages[this->imageIndex]->loadFromFile("missing.png");
+		if (settings::setPath(settings::defaultPathIndex + this->imageIndex + 1) > 0
+			&& !this->sfImages[this->imageIndex]->loadFromFile(settings::defaultPath))
+			this->ImageMissing[this->imageIndex] = this->sfImages[this->imageIndex]->loadFromFile("missing.png");
 		this->texs[this->imageIndex]->loadFromImage(*this->sfImages[this->imageIndex]);
 		this->cartoons[this->imageIndex]->setTexture(*this->texs[this->imageIndex]);
 		this->extractName(settings::defaultPath);} 
@@ -95,7 +96,7 @@ void Tools::sfmlMananger::GetPoints(){
 			for (this->Indexer = 0; this->results[this->Indexer] != '\0'; this->Indexer++)
 				if (this->results[this->Indexer] != this->bottom_corner[this->Indexer]) break;
 			if (this->bottom_chars != this->Indexer) continue;
-			this->table->select(this->results, objectz, 0);
+			this->table->select(this->results, objectz, One);
 			this->imgdex(); this->centerImage(); break;}
 		for (this->indexer = 0; this->indexer < this->points; this->indexer++){
 			this->pointsList[One][this->indexer] += static_cast<float>(this->x[this->imageIndex]);
@@ -121,38 +122,27 @@ void Tools::sfmlMananger::DrawImages(){
 		this->canvas->draw(*this->circles[this->indexer]);
 };
 void Tools::sfmlMananger::centerImage(){
-	this->halfOfHeight2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[Two][this->indexer] / 2));
-	this->halfOfWidth2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[One][this->indexer] / 2));
+	if (this->ImageMissing[this->imageIndex]) this->halfOfWidth2[this->imageIndex] = this->widthOfMissing;
+	else this->halfOfWidth2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[One][this->indexer] / 2));
+	if (this->ImageMissing[this->imageIndex]) this->halfOfHeight2[this->imageIndex] = this->heightOfMissing;
+	else this->halfOfHeight2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[Two][this->indexer] / 2));
 	this->y[this->imageIndex] = static_cast<float>(this->halfOfHeight - this->halfOfHeight2[this->imageIndex]);
 	this->x[this->imageIndex] = static_cast<float>(this->halfOfWidth - this->halfOfWidth2[this->imageIndex]);
 }
 void Tools::sfmlMananger::ModifyPoint(){
-	if (this->keyPressed(controlKey)){
-		this->ctrlKeyPressed = !this->ctrlKeyPressed; if (imageIndex < 0) return;
-		for (this->inDexer = 0; this->filenames[this->imageIndex][this->inDexer] != '\0'; this->inDexer) this->inDexer++; 
-		if (this->keysPressed[controlKey]) this->filenames[this->imageIndex][this->inDexer] = '*';
-		else this->filenames[this->imageIndex][this->inDexer] = '\0';
-		this->canvas->setTitle(this->filenames[this->imageIndex]);}
+	if (this->keyPressed(controlKey) ){
+		this->ctrlKeyPressed = !this->ctrlKeyPressed; if (this->imageIndex < 0) return;
+		if (this->ctrlKeyPressed) this->endChar = '\0'; else this->endChar = '*';
+		for (this->indexer = 0; this->indexer < this->images; this->indexer++){
+			for (this->inDexer = 0; this->filenames[this->indexer][this->inDexer] != this->endChar; this->inDexer++) continue;
+			if (this->ctrlKeyPressed) this->filenames[this->indexer][this->inDexer] = '*';
+			else this->filenames[this->indexer][this->inDexer] = '\0';}
+		this->canvas->setTitle(this->filenames[this->imageIndex]);
+	}
 
 
 
 
-}
-int Tools::sfmlMananger::fetchFromDatabase(bool query) {
-	if (!query){
-		if (this->databaseHits == this->ctrlKeyHits && (
-			(this->ctrlKeyPressed && this->keyPressed(enterKey)) ||
-			(this->ctrlKeyPressed && this->keyPressed(rightArrowKey)) ||
-			(this->ctrlKeyPressed && this->keyPressed(leftArrowKey))))
-		    return ++this->ctrlKeyHits;}
-		else{
-			if (this->ctrlKeyPressed && this->keysPressed[enterKey])
-				return this->table->select(content::current);
-			else if (this->ctrlKeyPressed && this->keysPressed[rightArrowKey])
-				return this->table->select(content::next);
-			else if (this->ctrlKeyPressed && this->keysPressed[leftArrowKey])
-				return this->table->select(content::previous);
-		} return 0;
 }
 void Tools::sfmlMananger::drawing(bool editable){
 	this->canvas->create(*this->mode, "blankwindow");
@@ -209,10 +199,10 @@ bool Tools::sfmlMananger::keyPressed(keyboard Key){
 			return this->keysPressed[enterKey] = true; break;
 	case Tools::controlKey:
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
-			|| !sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)
+			&& !sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)
 			&& this->keysPressed[controlKey]) return this->keysPressed[controlKey] = false;
-		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
-			|| sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)
+		else if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
+			|| sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
 			&& !this->keysPressed[controlKey]) return this->keysPressed[controlKey] = true; break;
 	case Tools::upArrowKey:
 		break;
@@ -232,6 +222,23 @@ bool Tools::sfmlMananger::keyPressed(keyboard Key){
 		break;
 	}
 	return false;
+}
+int Tools::sfmlMananger::fetchFromDatabase(bool query) {
+	if (!query){
+		if (this->databaseHits == this->ctrlKeyHits && (
+			(this->ctrlKeyPressed && this->keyPressed(enterKey)) ||
+			(this->ctrlKeyPressed && this->keyPressed(rightArrowKey)) ||
+			(this->ctrlKeyPressed && this->keyPressed(leftArrowKey))))
+			return ++this->ctrlKeyHits;
+	}
+	else{
+		if (this->ctrlKeyPressed && this->keysPressed[enterKey])
+			return this->table->select(content::current);
+		else if (this->ctrlKeyPressed && this->keysPressed[rightArrowKey])
+			return this->table->select(content::next);
+		else if (this->ctrlKeyPressed && this->keysPressed[leftArrowKey])
+			return this->table->select(content::previous);
+	} return 0;
 }
 
 
