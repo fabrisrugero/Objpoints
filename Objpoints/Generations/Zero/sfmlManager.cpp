@@ -41,6 +41,7 @@ Tools::sfmlMananger::sfmlMananger(){
 	for (this->inDexer = 0; this->inDexer < this->images; this->inDexer++)
 	{this->texs[this->inDexer] = new sf::Texture();this->sfImages[this->inDexer] = new sf::Image();this->cartoons[this->inDexer] = new sf::Sprite();}
 	this->texs[this->images] = new sf::Texture(); this->cartoons[this->images] = new sf::Sprite(); this->sfImages[this->images] = new sf::Image();
+	settings::setPath(settings::defaultPathIndex, false); this->table = new dbTable(nullptr);
 }
 Tools::sfmlMananger::~sfmlMananger(){
 	for (this->indexer = 0; this->indexer < this->images; this->indexer++) delete this->sfImages[this->indexer]; delete this->sfImages[this->indexer];
@@ -78,37 +79,38 @@ void Tools::sfmlMananger::GetImages(){
 	this->cartoons[this->images]->setTexture(*this->texs[this->images]);
 }
 void Tools::sfmlMananger::GetPoints(){
-	if (this->databaseHits < this->fetchFromDatabase(false)){
-		if (this->table == nullptr && settings::setPath(settings::defaultPathIndex, false) > 0 ) 
-			this->table = new dbTable(nullptr); 
-		if (this->table != nullptr && !(this->hasErrmsg = this->table->hasErrors()))
-			this->points = this->reconstruct(this->fetchFromDatabase(true)); this->databaseHits++;
-	if (this->table != nullptr && !(this->hasErrmsg = this->table->hasErrors()) && this->points > 0){
-		for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-			this->table->select(this->results, pointx, this->indexer);
-			this->pointsList[One][this->indexer] = strtof(this->results, nullptr);
-			this->table->select(this->results, pointy, this->indexer);
-			this->pointsList[Two][this->indexer] = strtof(this->results, nullptr);
-			this->table->select(this->results, radius, this->indexer);
-			this->pointsList[Three][this->indexer] = strtof(this->results, nullptr);}
-		for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-			this->table->select(this->results, pointz, this->indexer);
-			for (this->Indexer = 0; this->results[this->Indexer] != '\0'; this->Indexer++)
-				if (this->results[this->Indexer] != this->bottom_corner[this->Indexer]) break;
-			if (this->bottom_chars != this->Indexer) continue;
-			this->table->select(this->results, objectz, One);
-			this->imgdex(); this->centerImage(); break;}
-		for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-			this->pointsList[One][this->indexer] += static_cast<float>(this->x[this->imageIndex]);
-			this->pointsList[Two][this->indexer] += static_cast<float>(this->y[this->imageIndex]);}
-		for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-			this->circles[this->indexer] = new sf::CircleShape();
-			this->floater = this->pointsList[Three][this->indexer];
-			this->circles[this->indexer]->setRadius(this->floater);
-			this->circles[this->indexer]->setFillColor(sf::Color::Green);
-			this->circles[this->indexer]->setOrigin(this->floater, this->floater);
-			this->circles[this->indexer]->setPosition(this->pointsList[One][this->indexer], this->pointsList[Two][this->indexer]);}}
-	else if (this->imageIndex == -1 && this->images > 0) this->imageIndex = 0;}
+	if (this->databaseHits < this->QueriesToDatabase(false)){
+		if (!(this->hasErrmsg = this->table->hasErrors()))
+			this->points = this->reconstruct(this->QueriesToDatabase(true)); this->databaseHits++;
+		if (!(this->hasErrmsg = this->table->hasErrors()) && this->points > 0) this->ProcPoints();
+		else if (this->imageIndex == -1 && this->images > 0) this->imageIndex = 0;
+	}
+}
+void Tools::sfmlMananger::ProcPoints(){
+	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
+		this->table->select(this->results, pointx, this->indexer);
+		this->pointsList[One][this->indexer] = strtof(this->results, nullptr);
+		this->table->select(this->results, pointy, this->indexer);
+		this->pointsList[Two][this->indexer] = strtof(this->results, nullptr);
+		this->table->select(this->results, radius, this->indexer);
+		this->pointsList[Three][this->indexer] = strtof(this->results, nullptr);}
+	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
+		this->table->select(this->results, pointz, this->indexer);
+		for (this->Indexer = 0; this->results[this->Indexer] != '\0'; this->Indexer++)
+			if (this->results[this->Indexer] != this->bottom_corner[this->Indexer]) break;
+		if (this->bottom_chars != this->Indexer) continue;
+		this->table->select(this->results, objectz, One);
+		this->imgdex(); this->centerImage(); break;}
+	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
+		this->pointsList[One][this->indexer] += static_cast<float>(this->x[this->imageIndex]);
+		this->pointsList[Two][this->indexer] += static_cast<float>(this->y[this->imageIndex]);}
+	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
+		this->circles[this->indexer] = new sf::CircleShape();
+		this->floater = this->pointsList[Three][this->indexer];
+		this->circles[this->indexer]->setRadius(this->floater);
+		this->circles[this->indexer]->setFillColor(sf::Color::Green);
+		this->circles[this->indexer]->setOrigin(this->floater, this->floater);
+		this->circles[this->indexer]->setPosition(this->pointsList[One][this->indexer], this->pointsList[Two][this->indexer]);}
 }
 void Tools::sfmlMananger::DrawImages(){
 	this->cartoons[this->images]->setPosition(
@@ -121,6 +123,12 @@ void Tools::sfmlMananger::DrawImages(){
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++)
 		this->canvas->draw(*this->circles[this->indexer]);
 };
+void Tools::sfmlMananger::InitPoints(){
+	if (!(this->hasErrmsg = this->table->hasErrors()))
+		this->points = this->reconstruct(this->table->select(content::current));
+	if (!(this->hasErrmsg = this->table->hasErrors()) && this->points > 0) this->ProcPoints();
+	else if (this->imageIndex == -1 && this->images > 0) this->imageIndex = 0;
+}
 void Tools::sfmlMananger::centerImage(){
 	if (this->ImageMissing[this->imageIndex]) this->halfOfWidth2[this->imageIndex] = this->widthOfMissing;
 	else this->halfOfWidth2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[One][this->indexer] / 2));
@@ -145,8 +153,9 @@ void Tools::sfmlMananger::ModifyPoint(){
 
 }
 void Tools::sfmlMananger::drawing(bool editable){
-	this->canvas->create(*this->mode, "blankwindow");
-	this->canvas->setFramerateLimit(60); this->GetImages();
+	this->canvas->create(*this->mode, "loading..");
+	this->canvas->setFramerateLimit(60); 
+	this->GetImages(); this->InitPoints();
 	while (this->canvas->isOpen()){ this->canvas->clear();
 		 while (this->canvas->pollEvent(*this->event))
 			 if (this->event->type == sf::Event::Closed)
@@ -223,7 +232,7 @@ bool Tools::sfmlMananger::keyPressed(keyboard Key){
 	}
 	return false;
 }
-int Tools::sfmlMananger::fetchFromDatabase(bool query) {
+int Tools::sfmlMananger::QueriesToDatabase(bool query) {
 	if (!query){
 		if (this->databaseHits == this->ctrlKeyHits && (
 			(this->ctrlKeyPressed && this->keyPressed(enterKey)) ||

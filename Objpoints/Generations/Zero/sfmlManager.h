@@ -4,7 +4,7 @@
 #include "../First/settings.h"
 namespace Tools{
 	class sfmlMananger{
-		int fetchFromDatabase(bool query);
+		int QueriesToDatabase(bool query);
 		bool keyPressed(keyboard Key);
 		const int maxFileLenght = 150;
 		const int widthOfMissing = 315;
@@ -36,7 +36,9 @@ namespace Tools{
 		bool* ImageMissing;
 		void DrawImages();
 		char** filenames;
+		void InitPoints();
 		void GetPoints();
+		void ProcPoints();
 		void GetImages();
 		sf::Event *event;
 		int halfOfHeight;
