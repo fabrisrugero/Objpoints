@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include "sfmlManager.h"
-
 void Tools::sfmlMananger::imgdex(){
 	for (this->Indexer = 0; this->Indexer < settings::grps; this->Indexer++){
 		for (this->inDexer = 0; this->results[this->inDexer] != '\0'; this->inDexer++)
@@ -15,6 +14,7 @@ Tools::sfmlMananger::sfmlMananger(){
 	this->ctrlKeyHits = 0;
 	this->databaseHits = 0;
 	this->circles = nullptr;
+	this->DrawOnTop = false;
 	this->ctrlKeyPressed = false;
 	this->event = new sf::Event();
 	this->images = settings::grps;
@@ -22,6 +22,7 @@ Tools::sfmlMananger::sfmlMananger(){
 	this->pointsList[Three] = nullptr;
 	this->pointsList[One] = nullptr;
 	this->pointsList[Two] = nullptr;
+	this->alternateKeyPressed = false;
 	this->canvas = new sf::RenderWindow();
 	this->bottom_corner = "bottom_corner";
 	this->x = new float[this->images + 1]();
@@ -74,6 +75,7 @@ void Tools::sfmlMananger::GetImages(){
 		this->texs[this->imageIndex]->loadFromImage(*this->sfImages[this->imageIndex]);
 		this->cartoons[this->imageIndex]->setTexture(*this->texs[this->imageIndex]);
 		this->extractName(settings::defaultPath);} 
+	this->cartoons[this->images]->setPosition(this->x[this->images], this->y[this->images]);
 	this->imageIndex = -1; this->sfImages[this->images]->loadFromFile("Grid.jpg");
 	this->texs[this->images]->loadFromImage(*this->sfImages[this->images]);
 	this->cartoons[this->images]->setTexture(*this->texs[this->images]);
@@ -83,7 +85,7 @@ void Tools::sfmlMananger::GetPoints(){
 		if (!(this->hasErrmsg = this->table->hasErrors()))
 			this->points = this->reconstruct(this->QueriesToDatabase(true)); this->databaseHits++;
 		if (!(this->hasErrmsg = this->table->hasErrors()) && this->points > 0) this->ProcPoints();
-		else if (this->imageIndex == -1 && this->images > 0) this->imageIndex = 0;
+		else if (this->imageIndex == -1 && this->images > 0) this->imageIndex = 0; this->convertToPoints();
 	}
 }
 void Tools::sfmlMananger::ProcPoints(){
@@ -105,29 +107,24 @@ void Tools::sfmlMananger::ProcPoints(){
 		this->pointsList[One][this->indexer] += static_cast<float>(this->x[this->imageIndex]);
 		this->pointsList[Two][this->indexer] += static_cast<float>(this->y[this->imageIndex]);}
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-		this->circles[this->indexer] = new sf::CircleShape();
 		this->floater = this->pointsList[Three][this->indexer];
+		this->circles[this->indexer] = new sf::CircleShape();
 		this->circles[this->indexer]->setRadius(this->floater);
 		this->circles[this->indexer]->setFillColor(sf::Color::Green);
 		this->circles[this->indexer]->setOrigin(this->floater, this->floater);
 		this->circles[this->indexer]->setPosition(this->pointsList[One][this->indexer], this->pointsList[Two][this->indexer]);}
+	this->cartoons[this->imageIndex]->setPosition(this->x[this->imageIndex], this->y[this->imageIndex]);
 }
 void Tools::sfmlMananger::DrawImages(){
-	this->cartoons[this->images]->setPosition(
-		this->x[this->images], this->y[this->images]);	
 	this->canvas->draw(*this->cartoons[this->images]);
-	if (this->images != 0 && this->imageIndex >= 0){
-		this->cartoons[this->imageIndex]->setPosition(
-			this->x[this->imageIndex], this->y[this->imageIndex]);
-		this->canvas->draw(*this->cartoons[this->imageIndex]);}
-	for (this->indexer = 0; this->indexer < this->points; this->indexer++)
-		this->canvas->draw(*this->circles[this->indexer]);
+	if (this->DrawOnTop) this->DrawImageTop();
+	else if (!this->DrawOnTop) this->DrawImageBottom();
 };
 void Tools::sfmlMananger::InitPoints(){
 	if (!(this->hasErrmsg = this->table->hasErrors()))
 		this->points = this->reconstruct(this->table->select(content::current));
 	if (!(this->hasErrmsg = this->table->hasErrors()) && this->points > 0) this->ProcPoints();
-	else if (this->imageIndex == -1 && this->images > 0) this->imageIndex = 0;
+	else if (this->imageIndex == -1 && this->images > 0) this->imageIndex = 0; this->convertToPoints();
 }
 void Tools::sfmlMananger::centerImage(){
 	if (this->ImageMissing[this->imageIndex]) this->halfOfWidth2[this->imageIndex] = this->widthOfMissing;
@@ -137,20 +134,39 @@ void Tools::sfmlMananger::centerImage(){
 	this->y[this->imageIndex] = static_cast<float>(this->halfOfHeight - this->halfOfHeight2[this->imageIndex]);
 	this->x[this->imageIndex] = static_cast<float>(this->halfOfWidth - this->halfOfWidth2[this->imageIndex]);
 }
-void Tools::sfmlMananger::ModifyPoint(){
-	if (this->keyPressed(controlKey) ){
+void Tools::sfmlMananger::DrawImageTop(){
+	for (this->indexer = 0; this->indexer < this->points; this->indexer++)
+		this->canvas->draw(*this->circles[this->indexer]);
+	if (this->images != 0 && this->imageIndex >= 0)
+		this->canvas->draw(*this->cartoons[this->imageIndex]);
+}
+void Tools::sfmlMananger::convertToPoints(){
+	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
+		if (this->pointsList[Three][this->indexer] >= this->minRadius) continue;
+		this->circles[this->indexer]->setOrigin(this->minRadius, this->minRadius);
+		this->circles[this->indexer]->setFillColor(sf::Color::Red);
+		this->circles[this->indexer]->setRadius(this->minRadius);
+	}
+}
+void Tools::sfmlMananger::DrawImageBottom(){
+	if (this->images != 0 && this->imageIndex >= 0)
+		this->canvas->draw(*this->cartoons[this->imageIndex]);
+	for (this->indexer = 0; this->indexer < this->points; this->indexer++)
+		this->canvas->draw(*this->circles[this->indexer]);
+}
+void Tools::sfmlMananger::controlKeystate(){
+	if (!this->alternateKeyPressed && this->keyPressed(controlKey)){
 		this->ctrlKeyPressed = !this->ctrlKeyPressed; if (this->imageIndex < 0) return;
 		if (this->ctrlKeyPressed) this->endChar = '\0'; else this->endChar = '*';
-		for (this->indexer = 0; this->indexer < this->images; this->indexer++){
-			for (this->inDexer = 0; this->filenames[this->indexer][this->inDexer] != this->endChar; this->inDexer++) continue;
-			if (this->ctrlKeyPressed) this->filenames[this->indexer][this->inDexer] = '*';
-			else this->filenames[this->indexer][this->inDexer] = '\0';}
-		this->canvas->setTitle(this->filenames[this->imageIndex]);
+		this->updateTitles(controlKey); this->canvas->setTitle(this->filenames[this->imageIndex]);
 	}
-
-
-
-
+}
+void Tools::sfmlMananger::alternateKeystate(){
+	if (!this->ctrlKeyPressed && this->keyPressed(alternateKey)){
+		this->alternateKeyPressed = !this->alternateKeyPressed; if (this->imageIndex < 0) return;
+		if (this->alternateKeyPressed) this->endChar = '\0'; else this->endChar = '-';
+		this->updateTitles(alternateKey); this->canvas->setTitle(this->filenames[this->imageIndex]);
+	}
 }
 void Tools::sfmlMananger::drawing(bool editable){
 	this->canvas->create(*this->mode, "loading..");
@@ -162,8 +178,25 @@ void Tools::sfmlMananger::drawing(bool editable){
 				 this->canvas->close();
 		this->GetPoints();
 		this->DrawImages();
-		this->ModifyPoint();
+		this->controlKeystate();
+		this->alternateKeystate();
+		this->pointsNavigatorNsizer();
+		this->pointsmovementcontroler();
 		this->canvas->display();
+	}
+}
+void Tools::sfmlMananger::pointsNavigatorNsizer(){
+	if (!this->ctrlKeyPressed && !alternateKeyPressed){
+		if (this->keysPressed[rightArrowKey]){
+		}
+		else if (this->keysPressed[leftArrowKey]){
+
+		}
+		else if (this->keysPressed[downArrowKey]){
+		}
+		else if (this->keysPressed[upArrowKey]){
+
+		}
 	}
 }
 int  Tools::sfmlMananger::reconstruct(int points){
@@ -197,8 +230,13 @@ bool Tools::sfmlMananger::keyPressed(keyboard Key){
 	switch (Key){
 	case Tools::noKey:
 		break;
-	case Tools::altKey:
-		break;
+	case Tools::alternateKey:
+		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt)
+			&& !sf::Keyboard::isKeyPressed(sf::Keyboard::RAlt)
+			&& this->keysPressed[alternateKey]) return this->keysPressed[alternateKey] = false;
+		else if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt)
+			|| sf::Keyboard::isKeyPressed(sf::Keyboard::RAlt))
+			&& !this->keysPressed[alternateKey]) return this->keysPressed[alternateKey] = true; break;
 	case Tools::enterKey:
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Return)
 			&& this->keysPressed[enterKey]) 
@@ -214,14 +252,20 @@ bool Tools::sfmlMananger::keyPressed(keyboard Key){
 			|| sf::Keyboard::isKeyPressed(sf::Keyboard::RControl))
 			&& !this->keysPressed[controlKey]) return this->keysPressed[controlKey] = true; break;
 	case Tools::upArrowKey:
-		break;
+		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Up)
+			&& this->keysPressed[upArrowKey]) return this->keysPressed[upArrowKey] = false;
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)
+			&& !this->keysPressed[upArrowKey])return this->keysPressed[upArrowKey] = true; break;
 	case Tools::leftArrowKey:
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Left)
 			&& this->keysPressed[leftArrowKey]) return this->keysPressed[leftArrowKey] = false;
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)
 			&& !this->keysPressed[leftArrowKey])return this->keysPressed[leftArrowKey] = true;break;
 	case Tools::downArrowKey:
-		break;
+		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Down)
+			&& this->keysPressed[downArrowKey]) return this->keysPressed[downArrowKey] = false;
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)
+			&& !this->keysPressed[downArrowKey])return this->keysPressed[downArrowKey] = true; break;
 	case Tools::rightArrowKey:
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Right)
 			&& this->keysPressed[rightArrowKey]) return this->keysPressed[rightArrowKey] = false;
@@ -232,6 +276,29 @@ bool Tools::sfmlMananger::keyPressed(keyboard Key){
 	}
 	return false;
 }
+void Tools::sfmlMananger::pointsmovementcontroler(){
+	if (!this->ctrlKeyPressed && alternateKeyPressed){
+		if (this->keysPressed[rightArrowKey]){
+		}
+		else if (this->keysPressed[leftArrowKey]){
+
+		}
+		else if (this->keysPressed[downArrowKey]){
+		}
+		else if (this->keysPressed[upArrowKey]){
+
+		}
+	}
+}
+void Tools::sfmlMananger::updateTitles(keyboard key){
+	for (this->indexer = 0; this->indexer < this->images; this->indexer++){
+		for (this->inDexer = 0; this->filenames[this->indexer][this->inDexer] != this->endChar; this->inDexer++) continue;
+		if (key == controlKey && this->ctrlKeyPressed) this->filenames[this->indexer][this->inDexer] = '*';
+		else if (key == controlKey && !this->ctrlKeyPressed) this->filenames[this->indexer][this->inDexer] = '\0';
+		else if (key == alternateKey && this->alternateKeyPressed) this->filenames[this->indexer][this->inDexer] = '-';
+		else if (key == alternateKey && !this->alternateKeyPressed) this->filenames[this->indexer][this->inDexer] = '\0';
+	}
+}
 int Tools::sfmlMananger::QueriesToDatabase(bool query) {
 	if (!query){
 		if (this->databaseHits == this->ctrlKeyHits && (
@@ -239,6 +306,10 @@ int Tools::sfmlMananger::QueriesToDatabase(bool query) {
 			(this->ctrlKeyPressed && this->keyPressed(rightArrowKey)) ||
 			(this->ctrlKeyPressed && this->keyPressed(leftArrowKey))))
 			return ++this->ctrlKeyHits;
+		else if (this->ctrlKeyPressed && 
+			(this->keyPressed(upArrowKey) 
+			|| this->keyPressed(downArrowKey)))
+		this->DrawOnTop = !this->DrawOnTop;
 	}
 	else{
 		if (this->ctrlKeyPressed && this->keysPressed[enterKey])

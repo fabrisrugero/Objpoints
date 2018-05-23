@@ -29,7 +29,7 @@ namespace Tools{
 	};
 	enum keyboard{
 		noKey,
-		altKey,
+		alternateKey,
 		enterKey,
 		controlKey,
 		upArrowKey,
