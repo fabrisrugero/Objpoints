@@ -12,14 +12,16 @@ Tools::sfmlMananger::sfmlMananger(){
 	this->imageIndex = 0;
 	this->endChar = '\0';
 	this->ctrlKeyHits = 0;
-	this->databaseHits = 0;
+	this->databaseHits = 1;
 	this->circles = nullptr;
 	this->DrawOnTop = false;
+	this->pointIndex = -1;
 	this->ctrlKeyPressed = false;
 	this->event = new sf::Event();
 	this->images = settings::grps;
-	this->pointsList = new float*[3];
+	this->pointsList = new float*[Five];
 	this->pointsList[Three] = nullptr;
+	this->pointsList[Four] = nullptr;
 	this->pointsList[One] = nullptr;
 	this->pointsList[Two] = nullptr;
 	this->alternateKeyPressed = false;
@@ -81,7 +83,9 @@ void Tools::sfmlMananger::GetImages(){
 	this->cartoons[this->images]->setTexture(*this->texs[this->images]);
 }
 void Tools::sfmlMananger::GetPoints(){
-	if (this->databaseHits < this->QueriesToDatabase(false)){
+	if (this->databaseHits > this->ctrlKeyHits) this->QueriesToDatabase(false);
+	else if (this->databaseHits < this->ctrlKeyHits) this->databaseHits++;
+	else if (this->databaseHits == this->ctrlKeyHits){ 
 		if (!(this->hasErrmsg = this->table->hasErrors()))
 			this->points = this->reconstruct(this->QueriesToDatabase(true)); this->databaseHits++;
 		if (!(this->hasErrmsg = this->table->hasErrors()) && this->points > 0) this->ProcPoints();
@@ -94,13 +98,15 @@ void Tools::sfmlMananger::ProcPoints(){
 		this->pointsList[One][this->indexer] = strtof(this->results, nullptr);
 		this->table->select(this->results, pointy, this->indexer);
 		this->pointsList[Two][this->indexer] = strtof(this->results, nullptr);
+		this->table->select(this->results, IsPoint, this->indexer);
+		this->pointsList[Four][this->indexer] = strtof(this->results, nullptr);
 		this->table->select(this->results, radius, this->indexer);
 		this->pointsList[Three][this->indexer] = strtof(this->results, nullptr);}
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
 		this->table->select(this->results, pointz, this->indexer);
 		for (this->Indexer = 0; this->results[this->Indexer] != '\0'; this->Indexer++)
 			if (this->results[this->Indexer] != this->bottom_corner[this->Indexer]) break;
-		if (this->bottom_chars != this->Indexer) continue;
+		if (this->bottom_chars != this->Indexer) continue;	this->pointIndex = 0;
 		this->table->select(this->results, objectz, One);
 		this->imgdex(); this->centerImage(); break;}
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
@@ -114,6 +120,7 @@ void Tools::sfmlMananger::ProcPoints(){
 		this->circles[this->indexer]->setOrigin(this->floater, this->floater);
 		this->circles[this->indexer]->setPosition(this->pointsList[One][this->indexer], this->pointsList[Two][this->indexer]);}
 	this->cartoons[this->imageIndex]->setPosition(this->x[this->imageIndex], this->y[this->imageIndex]);
+	this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);
 }
 void Tools::sfmlMananger::DrawImages(){
 	this->canvas->draw(*this->cartoons[this->images]);
@@ -142,7 +149,7 @@ void Tools::sfmlMananger::DrawImageTop(){
 }
 void Tools::sfmlMananger::convertToPoints(){
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-		if (this->pointsList[Three][this->indexer] >= this->minRadius) continue;
+		if (this->pointsList[Four][this->indexer] == 0) continue;
 		this->circles[this->indexer]->setOrigin(this->minRadius, this->minRadius);
 		this->circles[this->indexer]->setFillColor(sf::Color::Red);
 		this->circles[this->indexer]->setRadius(this->minRadius);
@@ -186,26 +193,37 @@ void Tools::sfmlMananger::drawing(bool editable){
 	}
 }
 void Tools::sfmlMananger::pointsNavigatorNsizer(){
+	if (this->NavElaspedTicks++ <= this->slowdown) return; 
 	if (!this->ctrlKeyPressed && !alternateKeyPressed){
-		if (this->keysPressed[rightArrowKey]){
-		}
-		else if (this->keysPressed[leftArrowKey]){
-
-		}
-		else if (this->keysPressed[downArrowKey]){
+		if (this->points > 0 && this->keysPressed[rightArrowKey]){
+			this->NavElaspedTicks = 0; if (this->pointsList[Four][this->pointIndex] != 0)
+				this->circles[this->pointIndex++]->setFillColor(sf::Color::Red);
+			else this->circles[this->pointIndex++]->setFillColor(sf::Color::Green);
+			if (this->pointIndex >= this->points) this->pointIndex = 0;
+			this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);
 		}
 		else if (this->keysPressed[upArrowKey]){
 
 		}
-	}
+		else if (this->points > 0 && this->keysPressed[leftArrowKey]){
+			this->NavElaspedTicks = 0; if (this->pointsList[Four][this->pointIndex] != 0)
+			this->circles[this->pointIndex--]->setFillColor(sf::Color::Red);
+			else this->circles[this->pointIndex--]->setFillColor(sf::Color::Green);
+			if (this->pointIndex < 0) this->pointIndex = this->points - 1;
+			this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);
+		}
+		else if (this->keysPressed[downArrowKey]){
+
+		}
+	} 
 }
 int  Tools::sfmlMananger::reconstruct(int points){
 	// saving changes logic to db goes here.
-	for (this->indexer = 0; this->indexer < Four && this->points > 0; this->indexer++)
+	for (this->indexer = 0; this->indexer < Five && this->points > 0; this->indexer++)
 	{delete[] this->pointsList[this->indexer]; this->pointsList[this->indexer] = nullptr;}
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++) delete this->circles[this->indexer];
 	if (this->points > 0) { delete[] this->circles; this->circles = nullptr; } if (points == 0) return points;
-	for (this->indexer = 0; this->indexer < Four; this->indexer++)
+	for (this->indexer = 0; this->indexer < Five; this->indexer++)
 		this->pointsList[this->indexer] = new float[points]();
 	this->circles = new sf::CircleShape*[points]; 
 	return points;
@@ -301,14 +319,13 @@ void Tools::sfmlMananger::updateTitles(keyboard key){
 }
 int Tools::sfmlMananger::QueriesToDatabase(bool query) {
 	if (!query){
-		if (this->databaseHits == this->ctrlKeyHits && (
-			(this->ctrlKeyPressed && this->keyPressed(enterKey)) ||
-			(this->ctrlKeyPressed && this->keyPressed(rightArrowKey)) ||
-			(this->ctrlKeyPressed && this->keyPressed(leftArrowKey))))
-			return ++this->ctrlKeyHits;
-		else if (this->ctrlKeyPressed && 
-			(this->keyPressed(upArrowKey) 
-			|| this->keyPressed(downArrowKey)))
+		if ((this->keyPressed(rightArrowKey) && this->ctrlKeyPressed) ||
+			(this->keyPressed(leftArrowKey) && this->ctrlKeyPressed) ||
+			(this->keyPressed(enterKey) && this->ctrlKeyPressed))
+			return this->ctrlKeyHits += 15;
+		else if ((this->keyPressed(upArrowKey) 
+			|| this->keyPressed(downArrowKey)) 
+			&& this->ctrlKeyPressed)
 		this->DrawOnTop = !this->DrawOnTop;
 	}
 	else{

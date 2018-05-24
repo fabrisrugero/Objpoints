@@ -18,7 +18,11 @@ namespace Tools{
 		const int height = 937;
 		const int width = 939;
 		char endChar;
+		int NavElaspedTicks;
+		int MovElaspedTicks;
+		const int slowdown = 10;
 		void convertToPoints();
+		int pointIndex;
 		const float minRadius = 3.0f;
 		void controlKeystate();
 		void alternateKeystate();
