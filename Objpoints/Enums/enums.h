@@ -29,10 +29,12 @@ namespace Tools{
 	};
 	enum keyboard{
 		noKey,
-		alternateKey,
 		enterKey,
+		LshiftKey,
+		RshiftKey,
 		controlKey,
 		upArrowKey,
+		alternateKey,
 		leftArrowKey,
 		downArrowKey,
 		rightArrowKey,

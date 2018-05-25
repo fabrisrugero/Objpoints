@@ -16,6 +16,7 @@ Tools::sfmlMananger::sfmlMananger(){
 	this->circles = nullptr;
 	this->DrawOnTop = false;
 	this->pointIndex = -1;
+	this->incriment = 1.0f;
 	this->ctrlKeyPressed = false;
 	this->event = new sf::Event();
 	this->images = settings::grps;
@@ -151,7 +152,8 @@ void Tools::sfmlMananger::convertToPoints(){
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
 		if (this->pointsList[Four][this->indexer] == 0) continue;
 		this->circles[this->indexer]->setOrigin(this->minRadius, this->minRadius);
-		this->circles[this->indexer]->setFillColor(sf::Color::Red);
+		if(this->indexer == this->pointIndex) this->circles[this->indexer]->setFillColor(sf::Color::Yellow);
+		else this->circles[this->indexer]->setFillColor(sf::Color::Red);
 		this->circles[this->indexer]->setRadius(this->minRadius);
 	}
 }
@@ -194,27 +196,32 @@ void Tools::sfmlMananger::drawing(bool editable){
 }
 void Tools::sfmlMananger::pointsNavigatorNsizer(){
 	if (this->NavElaspedTicks++ <= this->slowdown) return; 
+	if (this->keyPressed(LshiftKey)) this->incriment += this->augmentor;
+	else if (this->keyPressed(RshiftKey))this->incriment -= this->augmentor;
+	if (this->incriment > 3) this->incriment = 3;
+	else if (this->incriment < 0) this->incriment = 0;
 	if (!this->ctrlKeyPressed && !alternateKeyPressed){
 		if (this->points > 0 && this->keysPressed[rightArrowKey]){
 			this->NavElaspedTicks = 0; if (this->pointsList[Four][this->pointIndex] != 0)
-				this->circles[this->pointIndex++]->setFillColor(sf::Color::Red);
+			this->circles[this->pointIndex++]->setFillColor(sf::Color::Red);
 			else this->circles[this->pointIndex++]->setFillColor(sf::Color::Green);
 			if (this->pointIndex >= this->points) this->pointIndex = 0;
-			this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);
-		}
-		else if (this->keysPressed[upArrowKey]){
-
-		}
+			this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);}
+		else if (this->points > 0 && this->keysPressed[upArrowKey]){
+			this->floater = this->pointsList[Three][this->pointIndex] += this->incriment;
+			this->circles[this->pointIndex]->setOrigin(this->floater, this->floater);
+			this->circles[this->pointIndex]->setRadius(this->floater);}
 		else if (this->points > 0 && this->keysPressed[leftArrowKey]){
 			this->NavElaspedTicks = 0; if (this->pointsList[Four][this->pointIndex] != 0)
 			this->circles[this->pointIndex--]->setFillColor(sf::Color::Red);
 			else this->circles[this->pointIndex--]->setFillColor(sf::Color::Green);
 			if (this->pointIndex < 0) this->pointIndex = this->points - 1;
-			this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);
-		}
-		else if (this->keysPressed[downArrowKey]){
-
-		}
+			this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);}
+		else if (this->points > 0 && this->keysPressed[downArrowKey]){
+			if (this->pointsList[Three][this->pointIndex] < this->minRadius) return;
+			this->floater = this->pointsList[Three][this->pointIndex] -= this->incriment;
+			this->circles[this->pointIndex]->setOrigin(this->floater, this->floater);
+			this->circles[this->pointIndex]->setRadius(this->floater);}
 	} 
 }
 int  Tools::sfmlMananger::reconstruct(int points){
@@ -246,8 +253,20 @@ void Tools::sfmlMananger::extractName(char* path){
 }
 bool Tools::sfmlMananger::keyPressed(keyboard Key){
 	switch (Key){
-	case Tools::noKey:
-		break;
+	case Tools::RshiftKey:
+		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::RShift)
+			&& this->keysPressed[RshiftKey])
+			return this->keysPressed[RshiftKey] = false;
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::RShift)
+			&& !this->keysPressed[RshiftKey])
+			return this->keysPressed[RshiftKey] = true; break;
+	case Tools::LshiftKey:
+		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)
+			&& this->keysPressed[LshiftKey])
+			return this->keysPressed[LshiftKey] = false;
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)
+			&& !this->keysPressed[LshiftKey])
+			return this->keysPressed[LshiftKey] = true; break;
 	case Tools::alternateKey:
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt)
 			&& !sf::Keyboard::isKeyPressed(sf::Keyboard::RAlt)
@@ -295,17 +314,20 @@ bool Tools::sfmlMananger::keyPressed(keyboard Key){
 	return false;
 }
 void Tools::sfmlMananger::pointsmovementcontroler(){
+	if (this->MovElaspedTicks++ <= this->slowdown) return;
 	if (!this->ctrlKeyPressed && alternateKeyPressed){
-		if (this->keysPressed[rightArrowKey]){
-		}
-		else if (this->keysPressed[leftArrowKey]){
-
-		}
-		else if (this->keysPressed[downArrowKey]){
-		}
-		else if (this->keysPressed[upArrowKey]){
-
-		}
+		if (this->keysPressed[rightArrowKey] && !(this->MovElaspedTicks = 0)){
+			this->floater = this->pointsList[One][this->pointIndex] += this->incriment;
+			this->circles[this->pointIndex]->setPosition(this->floater, this->pointsList[Two][this->pointIndex]);}
+		else if (this->keysPressed[leftArrowKey] && !(this->MovElaspedTicks = 0)){
+			this->floater = this->pointsList[One][this->pointIndex] -= this->incriment;
+			this->circles[this->pointIndex]->setPosition(this->floater, this->pointsList[Two][this->pointIndex]);}
+		else if (this->keysPressed[downArrowKey] && !(this->MovElaspedTicks = 0)){
+			this->floater = this->pointsList[Two][this->pointIndex] -= this->incriment;
+			this->circles[this->pointIndex]->setPosition(this->pointsList[One][this->pointIndex], this->floater);}
+		else if (this->keysPressed[upArrowKey] && !(this->MovElaspedTicks = 0)){
+			this->floater = this->pointsList[Two][this->pointIndex] += this->incriment;
+			this->circles[this->pointIndex]->setPosition(this->pointsList[One][this->pointIndex], this->floater);}
 	}
 }
 void Tools::sfmlMananger::updateTitles(keyboard key){
