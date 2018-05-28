@@ -21,10 +21,10 @@ Tools::sfmlMananger::sfmlMananger(){
 	this->event = new sf::Event();
 	this->images = settings::grps;
 	this->pointsList = new float*[Five];
-	this->pointsList[Three] = nullptr;
-	this->pointsList[Four] = nullptr;
 	this->pointsList[One] = nullptr;
+	this->pointsList[Four] = nullptr;
 	this->pointsList[Two] = nullptr;
+	this->pointsList[Three] = nullptr;
 	this->alternateKeyPressed = false;
 	this->canvas = new sf::RenderWindow();
 	this->bottom_corner = "bottom_corner";
@@ -96,30 +96,30 @@ void Tools::sfmlMananger::GetPoints(){
 void Tools::sfmlMananger::ProcPoints(){
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
 		this->table->select(this->results, pointx, this->indexer);
-		this->pointsList[One][this->indexer] = strtof(this->results, nullptr);
-		this->table->select(this->results, pointy, this->indexer);
 		this->pointsList[Two][this->indexer] = strtof(this->results, nullptr);
+		this->table->select(this->results, pointy, this->indexer);
+		this->pointsList[Three][this->indexer] = strtof(this->results, nullptr);
 		this->table->select(this->results, IsPoint, this->indexer);
 		this->pointsList[Four][this->indexer] = strtof(this->results, nullptr);
 		this->table->select(this->results, radius, this->indexer);
-		this->pointsList[Three][this->indexer] = strtof(this->results, nullptr);}
+		this->pointsList[One][this->indexer] = strtof(this->results, nullptr);}
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
 		this->table->select(this->results, pointz, this->indexer);
 		for (this->Indexer = 0; this->results[this->Indexer] != '\0'; this->Indexer++)
 			if (this->results[this->Indexer] != this->bottom_corner[this->Indexer]) break;
 		if (this->bottom_chars != this->Indexer) continue;	this->pointIndex = 0;
-		this->table->select(this->results, objectz, One);
+		this->table->select(this->results, objectz, Two);
 		this->imgdex(); this->centerImage(); break;}
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-		this->pointsList[One][this->indexer] += static_cast<float>(this->x[this->imageIndex]);
-		this->pointsList[Two][this->indexer] += static_cast<float>(this->y[this->imageIndex]);}
+		this->pointsList[Two][this->indexer] += static_cast<float>(this->x[this->imageIndex]);
+		this->pointsList[Three][this->indexer] += static_cast<float>(this->y[this->imageIndex]);}
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-		this->floater = this->pointsList[Three][this->indexer];
+		this->floater = this->pointsList[One][this->indexer];
 		this->circles[this->indexer] = new sf::CircleShape();
 		this->circles[this->indexer]->setRadius(this->floater);
 		this->circles[this->indexer]->setFillColor(sf::Color::Green);
 		this->circles[this->indexer]->setOrigin(this->floater, this->floater);
-		this->circles[this->indexer]->setPosition(this->pointsList[One][this->indexer], this->pointsList[Two][this->indexer]);}
+		this->circles[this->indexer]->setPosition(this->pointsList[Two][this->indexer], this->pointsList[Three][this->indexer]);}
 	this->cartoons[this->imageIndex]->setPosition(this->x[this->imageIndex], this->y[this->imageIndex]);
 	this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);
 }
@@ -136,9 +136,9 @@ void Tools::sfmlMananger::InitPoints(){
 }
 void Tools::sfmlMananger::centerImage(){
 	if (this->ImageMissing[this->imageIndex]) this->halfOfWidth2[this->imageIndex] = this->widthOfMissing;
-	else this->halfOfWidth2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[One][this->indexer] / 2));
+	else this->halfOfWidth2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[Two][this->indexer] / 2));
 	if (this->ImageMissing[this->imageIndex]) this->halfOfHeight2[this->imageIndex] = this->heightOfMissing;
-	else this->halfOfHeight2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[Two][this->indexer] / 2));
+	else this->halfOfHeight2[this->imageIndex] = static_cast<int>(std::round(this->pointsList[Three][this->indexer] / 2));
 	this->y[this->imageIndex] = static_cast<float>(this->halfOfHeight - this->halfOfHeight2[this->imageIndex]);
 	this->x[this->imageIndex] = static_cast<float>(this->halfOfWidth - this->halfOfWidth2[this->imageIndex]);
 }
@@ -208,7 +208,7 @@ void Tools::sfmlMananger::pointsNavigatorNsizer(){
 			if (this->pointIndex >= this->points) this->pointIndex = 0;
 			this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);}
 		else if (this->points > 0 && this->keysPressed[upArrowKey]){
-			this->floater = this->pointsList[Three][this->pointIndex] += this->incriment;
+			this->floater = this->pointsList[One][this->pointIndex] += this->incriment;
 			this->circles[this->pointIndex]->setOrigin(this->floater, this->floater);
 			this->circles[this->pointIndex]->setRadius(this->floater);}
 		else if (this->points > 0 && this->keysPressed[leftArrowKey]){
@@ -218,8 +218,8 @@ void Tools::sfmlMananger::pointsNavigatorNsizer(){
 			if (this->pointIndex < 0) this->pointIndex = this->points - 1;
 			this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);}
 		else if (this->points > 0 && this->keysPressed[downArrowKey]){
-			if (this->pointsList[Three][this->pointIndex] < this->minRadius) return;
-			this->floater = this->pointsList[Three][this->pointIndex] -= this->incriment;
+			if (this->pointsList[One][this->pointIndex] < this->minRadius) return;
+			this->floater = this->pointsList[One][this->pointIndex] -= this->incriment;
 			this->circles[this->pointIndex]->setOrigin(this->floater, this->floater);
 			this->circles[this->pointIndex]->setRadius(this->floater);}
 	} 
@@ -253,6 +253,13 @@ void Tools::sfmlMananger::extractName(char* path){
 }
 bool Tools::sfmlMananger::keyPressed(keyboard Key){
 	switch (Key){
+	case Tools::EscKey:
+		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)
+			&& this->keysPressed[EscKey])
+			return this->keysPressed[EscKey] = false;
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)
+			&& !this->keysPressed[EscKey])
+			return this->keysPressed[EscKey] = true; break;
 	case Tools::RshiftKey:
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::RShift)
 			&& this->keysPressed[RshiftKey])
@@ -274,13 +281,13 @@ bool Tools::sfmlMananger::keyPressed(keyboard Key){
 		else if ((sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt)
 			|| sf::Keyboard::isKeyPressed(sf::Keyboard::RAlt))
 			&& !this->keysPressed[alternateKey]) return this->keysPressed[alternateKey] = true; break;
-	case Tools::enterKey:
+	case Tools::EnterKey:
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::Return)
-			&& this->keysPressed[enterKey]) 
-			return this->keysPressed[enterKey] = false;
+			&& this->keysPressed[EnterKey]) 
+			return this->keysPressed[EnterKey] = false;
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return) 
-			&& !this->keysPressed[enterKey])
-			return this->keysPressed[enterKey] = true; break;
+			&& !this->keysPressed[EnterKey])
+			return this->keysPressed[EnterKey] = true; break;
 	case Tools::controlKey:
 		if (!sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
 			&& !sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)
@@ -317,17 +324,17 @@ void Tools::sfmlMananger::pointsmovementcontroler(){
 	if (this->MovElaspedTicks++ <= this->slowdown) return;
 	if (!this->ctrlKeyPressed && alternateKeyPressed){
 		if (this->keysPressed[rightArrowKey] && !(this->MovElaspedTicks = 0)){
-			this->floater = this->pointsList[One][this->pointIndex] += this->incriment;
-			this->circles[this->pointIndex]->setPosition(this->floater, this->pointsList[Two][this->pointIndex]);}
-		else if (this->keysPressed[leftArrowKey] && !(this->MovElaspedTicks = 0)){
-			this->floater = this->pointsList[One][this->pointIndex] -= this->incriment;
-			this->circles[this->pointIndex]->setPosition(this->floater, this->pointsList[Two][this->pointIndex]);}
-		else if (this->keysPressed[downArrowKey] && !(this->MovElaspedTicks = 0)){
-			this->floater = this->pointsList[Two][this->pointIndex] -= this->incriment;
-			this->circles[this->pointIndex]->setPosition(this->pointsList[One][this->pointIndex], this->floater);}
-		else if (this->keysPressed[upArrowKey] && !(this->MovElaspedTicks = 0)){
 			this->floater = this->pointsList[Two][this->pointIndex] += this->incriment;
-			this->circles[this->pointIndex]->setPosition(this->pointsList[One][this->pointIndex], this->floater);}
+			this->circles[this->pointIndex]->setPosition(this->floater, this->pointsList[Three][this->pointIndex]);}
+		else if (this->keysPressed[leftArrowKey] && !(this->MovElaspedTicks = 0)){
+			this->floater = this->pointsList[Two][this->pointIndex] -= this->incriment;
+			this->circles[this->pointIndex]->setPosition(this->floater, this->pointsList[Three][this->pointIndex]);}
+		else if (this->keysPressed[downArrowKey] && !(this->MovElaspedTicks = 0)){
+			this->floater = this->pointsList[Three][this->pointIndex] -= this->incriment;
+			this->circles[this->pointIndex]->setPosition(this->pointsList[Two][this->pointIndex], this->floater);}
+		else if (this->keysPressed[upArrowKey] && !(this->MovElaspedTicks = 0)){
+			this->floater = this->pointsList[Three][this->pointIndex] += this->incriment;
+			this->circles[this->pointIndex]->setPosition(this->pointsList[Two][this->pointIndex], this->floater);}
 	}
 }
 void Tools::sfmlMananger::updateTitles(keyboard key){
@@ -343,7 +350,8 @@ int Tools::sfmlMananger::QueriesToDatabase(bool query) {
 	if (!query){
 		if ((this->keyPressed(rightArrowKey) && this->ctrlKeyPressed) ||
 			(this->keyPressed(leftArrowKey) && this->ctrlKeyPressed) ||
-			(this->keyPressed(enterKey) && this->ctrlKeyPressed))
+			(this->keyPressed(EnterKey) && this->ctrlKeyPressed) ||
+			(this->keyPressed(EscKey) && this->ctrlKeyPressed))
 			return this->ctrlKeyHits += 15;
 		else if ((this->keyPressed(upArrowKey) 
 			|| this->keyPressed(downArrowKey)) 
@@ -351,8 +359,10 @@ int Tools::sfmlMananger::QueriesToDatabase(bool query) {
 		this->DrawOnTop = !this->DrawOnTop;
 	}
 	else{
-		if (this->ctrlKeyPressed && this->keysPressed[enterKey])
+		if (this->ctrlKeyPressed && this->keysPressed[EscKey])
 			return this->table->select(content::current);
+		else if (this->ctrlKeyPressed && this->keysPressed[EnterKey])
+			return this->table->update(this->pointsList, this->points);
 		else if (this->ctrlKeyPressed && this->keysPressed[rightArrowKey])
 			return this->table->select(content::next);
 		else if (this->ctrlKeyPressed && this->keysPressed[leftArrowKey])

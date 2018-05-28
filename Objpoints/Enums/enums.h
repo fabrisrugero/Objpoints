@@ -29,7 +29,8 @@ namespace Tools{
 	};
 	enum keyboard{
 		noKey,
-		enterKey,
+		EscKey,
+		EnterKey,
 		LshiftKey,
 		RshiftKey,
 		controlKey,

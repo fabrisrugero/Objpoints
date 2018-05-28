@@ -21,6 +21,8 @@ namespace Tools{
 		const char* table;
 		void initcolumns();
 		const char* errmsg;
+		char* modifiedchars;
+		int modifiedLOfchars;
 		int handlErrors();
 		Tools::query* query;
 		char* querystatement;
@@ -32,6 +34,7 @@ namespace Tools{
 		~dbTable();
 		bool *ignoredcolumns;
 		bool connectedTo(char* db);
+		bool update(float** modifiedData, int count);
 		int select(Tools::content content);
 		bool hasErrors(char* arr = nullptr);
 		int initcolumns(char* output, int setwidth);

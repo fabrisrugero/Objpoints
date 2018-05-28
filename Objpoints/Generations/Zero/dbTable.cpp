@@ -47,10 +47,11 @@ Tools::dbTable::dbTable(char* db, int end, int str){
 	for (this->Indexer = 0; this->Indexer < end; this->Indexer++) this->database[this->Indexer] = db[this->Indexer]; if (end > 0) this->database[this->Indexer] = '\0';
 	if (this->database == nullptr) this->query = new Tools::query(Tools::settings::defaultPath, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
 	else this->query = new Tools::query(this->database, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
-	this->querystatement = new char[settings::QUERY_SIZE];
+	this->querystatement = new char[settings::QUERY_SIZE]; this->modifiedchars = new char[64];
 	this->content = new char[settings::MAX_CHARS + 50];
 	this->sqlcommand = this->querystatement;
 	this->table = "objectz_points";
+	this->modifiedLOfchars = 0;
 	this->errors = nullptr;
 	this->columns = 7;
 	this->initcolumns();
@@ -85,6 +86,20 @@ int Tools::dbTable::select(Tools::content content){
 	else this->query->copyrecords(results, rows, columns);
 	sqlite3_free_table(results); return rows;
 };
+bool Tools::dbTable::update(float** modifiedData, int count){
+	for (this->Indexer = 0; this->Indexer < count; this->Indexer++){
+		this->query->add(this->cols[id], query->TYPE, true);
+		for (this->indexer = 0; this->indexer < Four; this->indexer++)
+			this->query->add(this->cols[this->indexer + 3], query->TYPE, this->indexer < Three);	
+		this->select(this->modifiedchars, id, this->Indexer);
+		this->query->add(this->modifiedchars, query->VALUE, true);
+		for (this->indexer = 0; this->indexer < Four; this->indexer++){
+			sprintf_s(this->modifiedchars, 64, "%f", modifiedData[this->indexer][this->Indexer]);
+			this->query->add(this->modifiedchars, query->VALUE, this->indexer < Three);}
+		this->query->updateRowInTable(this->querystatement, this->table, this->lenght);
+	}
+	return true;
+}
 void Tools::dbTable::where(Tools::columns column, const char* value){
 	this->query->add(value, query->VALUE);
 	this->query->add(this->cols[column], query->TYPE);
