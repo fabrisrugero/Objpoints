@@ -31,9 +31,11 @@ Tools::sfmlMananger::sfmlMananger(){
 	this->x = new float[this->images + 1]();
 	this->y = new float[this->images + 1]();
 	this->ImageMissing = new bool[images]();
+	this->Grid = "unscaled_assets\\Grid.jpg";
 	this->filenames = new char*[this->images];
 	this->keysPressed = new bool[relevateKeys]();
 	this->results = new char[settings::MAX_CHARS];
+	this->missing = "unscaled_assets\\missing.png";
 	this->texs = new sf::Texture*[this->images + 1];
 	this->halfOfWidth2 = new int[this->images + 1]();
 	this->halfOfHeight2 = new int[this->images + 1]();
@@ -72,14 +74,14 @@ Tools::sfmlMananger::~sfmlMananger(){
 }
 void Tools::sfmlMananger::GetImages(){
 	for (this->imageIndex = 0; this->imageIndex < this->images; this->imageIndex++){
-		if (settings::setPath(settings::defaultPathIndex + this->imageIndex + 1) > 0
-			&& !this->sfImages[this->imageIndex]->loadFromFile(settings::defaultPath))
-			this->ImageMissing[this->imageIndex] = this->sfImages[this->imageIndex]->loadFromFile("missing.png");
+		if (settings::setPath(settings::defaultPathIndex + this->imageIndex + 1) == 0
+			|| !this->sfImages[this->imageIndex]->loadFromFile(settings::defaultPath))
+			this->ImageMissing[this->imageIndex] = this->sfImages[this->imageIndex]->loadFromFile(this->missing);
 		this->texs[this->imageIndex]->loadFromImage(*this->sfImages[this->imageIndex]);
 		this->cartoons[this->imageIndex]->setTexture(*this->texs[this->imageIndex]);
 		this->extractName(settings::defaultPath);} 
 	this->cartoons[this->images]->setPosition(this->x[this->images], this->y[this->images]);
-	this->imageIndex = -1; this->sfImages[this->images]->loadFromFile("Grid.jpg");
+	this->imageIndex = -1; this->sfImages[this->images]->loadFromFile(this->Grid);
 	this->texs[this->images]->loadFromImage(*this->sfImages[this->images]);
 	this->cartoons[this->images]->setTexture(*this->texs[this->images]);
 }
@@ -102,7 +104,7 @@ void Tools::sfmlMananger::ProcPoints(){
 		this->table->select(this->results, IsPoint, this->indexer);
 		this->pointsList[Four][this->indexer] = strtof(this->results, nullptr);
 		this->table->select(this->results, radius, this->indexer);
-		this->pointsList[One][this->indexer] = strtof(this->results, nullptr);}
+		this->pointsList[One][this->indexer] =  std::sqrtf(strtof(this->results, nullptr));}
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
 		this->table->select(this->results, pointz, this->indexer);
 		for (this->Indexer = 0; this->results[this->Indexer] != '\0'; this->Indexer++)
@@ -110,9 +112,13 @@ void Tools::sfmlMananger::ProcPoints(){
 		if (this->bottom_chars != this->Indexer) continue;	this->pointIndex = 0;
 		this->table->select(this->results, objectz, Two);
 		this->imgdex(); this->centerImage(); break;}
+		this->floater = static_cast<float>(this->halfOfWidth) 
+			- std::round(this->pointsList[Two][this->indexer] / 2);
+		this->Floater = static_cast<float>(this->halfOfHeight) 
+			- std::round(this->pointsList[Three][this->indexer] / 2);
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-		this->pointsList[Two][this->indexer] += static_cast<float>(this->x[this->imageIndex]);
-		this->pointsList[Three][this->indexer] += static_cast<float>(this->y[this->imageIndex]);}
+		this->pointsList[Two][this->indexer] += this->floater; 
+		this->pointsList[Three][this->indexer] += this->Floater;}
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
 		this->floater = this->pointsList[One][this->indexer];
 		this->circles[this->indexer] = new sf::CircleShape();
@@ -356,13 +362,19 @@ int Tools::sfmlMananger::QueriesToDatabase(bool query) {
 		else if ((this->keyPressed(upArrowKey) 
 			|| this->keyPressed(downArrowKey)) 
 			&& this->ctrlKeyPressed)
-		this->DrawOnTop = !this->DrawOnTop;
-	}
+		this->DrawOnTop = !this->DrawOnTop;}
 	else{
 		if (this->ctrlKeyPressed && this->keysPressed[EscKey])
 			return this->table->select(content::current);
-		else if (this->ctrlKeyPressed && this->keysPressed[EnterKey])
-			return this->table->update(this->pointsList, this->points);
+		else if (this->ctrlKeyPressed && this->keysPressed[EnterKey]){
+			this->floater = static_cast<float>(this->x[this->imageIndex]);
+			this->Floater = static_cast<float>(this->y[this->imageIndex]);
+			for (this->indexer = 0; this->indexer < this->points; this->indexer++){
+				this->floAter = this->pointsList[One][this->indexer];
+				this->pointsList[Two][this->indexer] -= this->floater;
+				this->pointsList[Three][this->indexer] -= this->Floater;
+				this->pointsList[One][this->indexer] = std::pow(this->floAter, 2);}
+			return this->table->update(this->pointsList, this->points);}
 		else if (this->ctrlKeyPressed && this->keysPressed[rightArrowKey])
 			return this->table->select(content::next);
 		else if (this->ctrlKeyPressed && this->keysPressed[leftArrowKey])

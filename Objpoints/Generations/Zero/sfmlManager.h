@@ -39,6 +39,8 @@ namespace Tools{
 		bool alternateKeyPressed;
 		bool* keysPressed;
 		bool DrawOnTop;
+		const char* missing;
+		const char* Grid;
 		void DrawImageTop();
 		void DrawImageBottom();
 		void updateTitles(keyboard key);
@@ -64,6 +66,8 @@ namespace Tools{
 		char* results;
 		void imgdex();
 		float floater;
+		float floAter;
+		float Floater;
 		bool success;
 		float *x, *y;
 		int inDexer;

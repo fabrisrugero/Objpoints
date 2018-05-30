@@ -22,6 +22,7 @@ namespace Tools{
 		void initcolumns();
 		const char* errmsg;
 		char* modifiedchars;
+		const int float_digits = 64;
 		int modifiedLOfchars;
 		int handlErrors();
 		Tools::query* query;

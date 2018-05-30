@@ -47,7 +47,7 @@ Tools::dbTable::dbTable(char* db, int end, int str){
 	for (this->Indexer = 0; this->Indexer < end; this->Indexer++) this->database[this->Indexer] = db[this->Indexer]; if (end > 0) this->database[this->Indexer] = '\0';
 	if (this->database == nullptr) this->query = new Tools::query(Tools::settings::defaultPath, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
 	else this->query = new Tools::query(this->database, settings::QUERY_SIZE, settings::MAX_CHARS, settings::MAX_COLUMNS);
-	this->querystatement = new char[settings::QUERY_SIZE]; this->modifiedchars = new char[64];
+	this->querystatement = new char[settings::QUERY_SIZE]; this->modifiedchars = new char[this->float_digits];
 	this->content = new char[settings::MAX_CHARS + 50];
 	this->sqlcommand = this->querystatement;
 	this->table = "objectz_points";
@@ -94,11 +94,12 @@ bool Tools::dbTable::update(float** modifiedData, int count){
 		this->select(this->modifiedchars, id, this->Indexer);
 		this->query->add(this->modifiedchars, query->VALUE, true);
 		for (this->indexer = 0; this->indexer < Four; this->indexer++){
-			sprintf_s(this->modifiedchars, 64, "%f", modifiedData[this->indexer][this->Indexer]);
+			sprintf_s(this->modifiedchars, this->float_digits, "%f", modifiedData[this->indexer][this->Indexer]);
 			this->query->add(this->modifiedchars, query->VALUE, this->indexer < Three);}
 		this->query->updateRowInTable(this->querystatement, this->table, this->lenght);
-	}
-	return true;
+		if (sqlite3_exec(this->db, this->sqlcommand, nullptr, nullptr, nullptr)) 
+			this->handlErrors();}
+	return false;
 }
 void Tools::dbTable::where(Tools::columns column, const char* value){
 	this->query->add(value, query->VALUE);
