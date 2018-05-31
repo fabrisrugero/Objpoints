@@ -28,9 +28,13 @@ namespace Tools{
 		bool success;
 		bool* removePaths;
 		static int inDexer;
+		static int InDexer;
 		bool IsValidInput();
+		static int lRootIndex;
+		static int*rootIndeces;
 		static int* pathLenghts;
 		static char** fullPaths;
+		static int rootIndexer();
 		std::fstream* settingsFile;
 		static const int MAX_PATHS = 20;
 	};

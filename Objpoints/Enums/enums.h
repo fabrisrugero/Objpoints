@@ -1,5 +1,16 @@
 #pragma once
 namespace Tools{
+	enum Number
+	{
+		zero,
+		one,
+		two,
+		three,
+		four ,
+		five,
+		six ,
+		seven
+	};
 	enum Menu
 	{
 		One,

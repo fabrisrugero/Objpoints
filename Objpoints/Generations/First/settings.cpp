@@ -3,10 +3,12 @@ int Tools::settings::grps = 0;
 int Tools::settings::Paths = 0;
 int Tools::settings::inDexer = 0;
 int Tools::settings::rootIndex = 0;
+int Tools::settings::lRootIndex = 0;
 int Tools::settings::maxGroupIndex = 0;
 char** Tools::settings::groups = nullptr;
 int Tools::settings::defaultPathIndex = 0;
 char** Tools::settings::fullPaths = nullptr;
+int* Tools::settings::rootIndeces = nullptr;
 int* Tools::settings::pathLenghts = nullptr;
 char* Tools::settings::defaultPath = nullptr;
 void Tools::settings::outputIntroductions(){
@@ -63,11 +65,11 @@ int Tools::settings::setPath(int index, bool newPath){
 			defaultPath[inDexer] = fullPaths[index][inDexer]; defaultPath[inDexer] = '\0'; 
 		if (option::validUserInputs == nullptr) return pathLenghts[index];
 		for (inDexer = 0; defaultPath[inDexer] != '\0'; inDexer++)
-			if (defaultPath[inDexer] == '\\') rootIndex = inDexer + 1;
-		for (inDexer = rootIndex; defaultPath[inDexer] != '\0'; inDexer++)
-			option::validUserInputs[inDexer - rootIndex] = defaultPath[inDexer];
-		if (defaultPath[inDexer - 1] == '\n') option::validUserInputs[inDexer - rootIndex - 1] =
-			option::validUserInputs[inDexer - rootIndex] = defaultPath[inDexer - 1] = '\0';
+			if (defaultPath[inDexer] == '\\') lRootIndex = rootIndexer(); 
+		for (inDexer = rootIndeces[rootIndex]; defaultPath[inDexer] != '\0'; inDexer++)
+			option::validUserInputs[inDexer - rootIndeces[rootIndex]] = defaultPath[inDexer];
+		if (defaultPath[inDexer - 1] == '\n') option::validUserInputs[inDexer - lRootIndex - 1] =
+			option::validUserInputs[inDexer - lRootIndex] = defaultPath[inDexer - 1] = '\0';
 		for (inDexer = 0; option::validUserInputs[inDexer] != '\0'; inDexer++)
 		if (option::validUserInputs[inDexer] == '.') option::decimalIndex = inDexer;
 		inDexer = 0; return pathLenghts[index];}
@@ -82,6 +84,12 @@ int Tools::settings::setPath(int index, bool newPath){
 		return pathLenghts[defaultPathIndex];}
 	return 0;
 }
+int Tools::settings::rootIndexer(){
+	rootIndeces[Four] = rootIndeces[Three];
+	rootIndeces[Three] = rootIndeces[Two];
+	rootIndeces[Two] = rootIndeces[One];
+	return rootIndeces[One] = inDexer + 1;
+};
 Tools::settings::settings(Menu Index) : option(MAX_CHARS){
 	this->settingsFile = new std::fstream("settings.txt", std::ios_base::in);
 	settings::defaultPath = new char[option::max_size];
@@ -89,6 +97,7 @@ Tools::settings::settings(Menu Index) : option(MAX_CHARS){
 	settings::fullPaths = new char*[MAX_CHARS];
 	this->removePaths = new bool[MAX_CHARS]();
 	this->index = static_cast<int>(Index)+1;
+	settings::rootIndeces = new int[four]();
 	this->Indexer = this->indexer = 0;
 	this->lines = new char[1000];
 	this->remove = false;

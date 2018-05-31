@@ -21,6 +21,7 @@ namespace Tools{
 		int NavElaspedTicks;
 		int MovElaspedTicks;
 		float incriment;
+		sf::Color* orange;
 		const float augmentor = 0.1f;
 		const int slowdown = 10;
 		void convertToPoints();

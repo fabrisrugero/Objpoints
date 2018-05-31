@@ -167,14 +167,11 @@ bool Tools::open::opendb(){
 bool Tools::open::update(){
 	std::cout << "Enter image/database: "; option::removeKeysPressed(); 
 	option::processKeysPressed(option::alphanumeric);
-	if (this->IsValidInput() && this->opendb())
-		return this->IsNewPath = true;
-	if (settings::setPath(settings::defaultPathIndex,false) > 0 && this->IsValidInput() && this->opendb())
-		return true;
-	else
-		for (this->InDexer = 0; this->InDexer < settings::Paths; this->InDexer++)
-			if (settings::setPath(this->InDexer,false) > 0 && this->IsValidInput() && this->opendb())
-				return true;
+	if (this->IsValidInput() && this->opendb()) return this->IsNewPath = true;
+	if (settings::setPath(settings::defaultPathIndex, false) > 0 && this->IsValidInput() && this->opendb()) return true;
+	else for (this->InDexer = 0; this->InDexer < settings::Paths; this->InDexer++)
+			for (settings::rootIndex = 0; settings::rootIndex < three; settings::rootIndex++)
+				if (settings::setPath(this->InDexer, false) > 0 && this->IsValidInput() && this->opendb()) return true;
 	if (this->hasErrmsg) std::cout << this->errmsg;
 	else std::cout << " Error: unable to open a file including any defualts set in settings";
 	std::cout << "\npress " << this->index << " to try again or press enter to exit" << std::endl;

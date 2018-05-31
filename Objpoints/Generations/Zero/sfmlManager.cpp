@@ -32,6 +32,7 @@ Tools::sfmlMananger::sfmlMananger(){
 	this->y = new float[this->images + 1]();
 	this->ImageMissing = new bool[images]();
 	this->Grid = "unscaled_assets\\Grid.jpg";
+	this->orange = new sf::Color(255, 165, 0);
 	this->filenames = new char*[this->images];
 	this->keysPressed = new bool[relevateKeys]();
 	this->results = new char[settings::MAX_CHARS];
@@ -66,6 +67,7 @@ Tools::sfmlMananger::~sfmlMananger(){
 	delete[] this->cartoons;
 	delete[] this->results;
 	delete[] this->texs;
+	delete this->orange;
 	delete this->canvas;
 	delete this->event;
 	delete this->mode;
@@ -127,7 +129,7 @@ void Tools::sfmlMananger::ProcPoints(){
 		this->circles[this->indexer]->setOrigin(this->floater, this->floater);
 		this->circles[this->indexer]->setPosition(this->pointsList[Two][this->indexer], this->pointsList[Three][this->indexer]);}
 	this->cartoons[this->imageIndex]->setPosition(this->x[this->imageIndex], this->y[this->imageIndex]);
-	this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);
+	this->circles[this->pointIndex]->setFillColor(*this->orange);
 }
 void Tools::sfmlMananger::DrawImages(){
 	this->canvas->draw(*this->cartoons[this->images]);
@@ -158,7 +160,7 @@ void Tools::sfmlMananger::convertToPoints(){
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
 		if (this->pointsList[Four][this->indexer] == 0) continue;
 		this->circles[this->indexer]->setOrigin(this->minRadius, this->minRadius);
-		if(this->indexer == this->pointIndex) this->circles[this->indexer]->setFillColor(sf::Color::Yellow);
+		if(this->indexer == this->pointIndex) this->circles[this->indexer]->setFillColor(*this->orange);
 		else this->circles[this->indexer]->setFillColor(sf::Color::Red);
 		this->circles[this->indexer]->setRadius(this->minRadius);
 	}
@@ -212,7 +214,7 @@ void Tools::sfmlMananger::pointsNavigatorNsizer(){
 			this->circles[this->pointIndex++]->setFillColor(sf::Color::Red);
 			else this->circles[this->pointIndex++]->setFillColor(sf::Color::Green);
 			if (this->pointIndex >= this->points) this->pointIndex = 0;
-			this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);}
+			this->circles[this->pointIndex]->setFillColor(*this->orange);}
 		else if (this->points > 0 && this->keysPressed[upArrowKey]){
 			this->floater = this->pointsList[One][this->pointIndex] += this->incriment;
 			this->circles[this->pointIndex]->setOrigin(this->floater, this->floater);
@@ -222,7 +224,7 @@ void Tools::sfmlMananger::pointsNavigatorNsizer(){
 			this->circles[this->pointIndex--]->setFillColor(sf::Color::Red);
 			else this->circles[this->pointIndex--]->setFillColor(sf::Color::Green);
 			if (this->pointIndex < 0) this->pointIndex = this->points - 1;
-			this->circles[this->pointIndex]->setFillColor(sf::Color::Yellow);}
+			this->circles[this->pointIndex]->setFillColor(*this->orange);}
 		else if (this->points > 0 && this->keysPressed[downArrowKey]){
 			if (this->pointsList[One][this->pointIndex] < this->minRadius) return;
 			this->floater = this->pointsList[One][this->pointIndex] -= this->incriment;
