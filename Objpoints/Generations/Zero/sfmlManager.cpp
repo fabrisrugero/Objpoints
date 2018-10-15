@@ -106,7 +106,7 @@ void Tools::sfmlMananger::ProcPoints(){
 		this->table->select(this->results, IsPoint, this->indexer);
 		this->pointsList[Four][this->indexer] = strtof(this->results, nullptr);
 		this->table->select(this->results, radius, this->indexer);
-		this->pointsList[One][this->indexer] =  std::sqrtf(strtof(this->results, nullptr));}
+		this->pointsList[One][this->indexer] = strtof(this->results, nullptr);}
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
 		this->table->select(this->results, pointz, this->indexer);
 		for (this->Indexer = 0; this->results[this->Indexer] != '\0'; this->Indexer++)
@@ -114,13 +114,9 @@ void Tools::sfmlMananger::ProcPoints(){
 		if (this->bottom_chars != this->Indexer) continue;	this->pointIndex = 0;
 		this->table->select(this->results, objectz, Two);
 		this->imgdex(); this->centerImage(); break;}
-		this->floater = static_cast<float>(this->halfOfWidth) 
-			- std::round(this->pointsList[Two][this->indexer] / 2);
-		this->Floater = static_cast<float>(this->halfOfHeight) 
-			- std::round(this->pointsList[Three][this->indexer] / 2);
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
-		this->pointsList[Two][this->indexer] += this->floater; 
-		this->pointsList[Three][this->indexer] += this->Floater;}
+		this->pointsList[Two][this->indexer] += this->x[this->imageIndex];
+		this->pointsList[Three][this->indexer] += this->y[this->imageIndex];}
 	for (this->indexer = 0; this->indexer < this->points; this->indexer++){
 		this->floater = this->pointsList[One][this->indexer];
 		this->circles[this->indexer] = new sf::CircleShape();
@@ -375,7 +371,7 @@ int Tools::sfmlMananger::QueriesToDatabase(bool query) {
 				this->floAter = this->pointsList[One][this->indexer];
 				this->pointsList[Two][this->indexer] -= this->floater;
 				this->pointsList[Three][this->indexer] -= this->Floater;
-				this->pointsList[One][this->indexer] = std::pow(this->floAter, 2);}
+				this->pointsList[One][this->indexer] = this->floAter;}
 			return this->table->update(this->pointsList, this->points);}
 		else if (this->ctrlKeyPressed && this->keysPressed[rightArrowKey])
 			return this->table->select(content::next);
